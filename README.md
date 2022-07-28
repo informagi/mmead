@@ -1,2 +1,2 @@
 # mmead
-MS Marco Entity Annotations Disambiguation
+MS MARCO entity annotations and disambiguations
