@@ -11,7 +11,7 @@ Format for document links:
          "start_pos": x,
          "end_pos": y, 
          "label": "entity_label",
-         "details": [...]
+         "details": {...}
         }, ...
     ],
     "headings": [...],
