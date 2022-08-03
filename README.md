@@ -32,7 +32,7 @@ where:
     "start_pos": x,
     "end_pos": y, 
     "label": "entity_label",
-    "details": [...]
+    "details": {...}
 }
 ```
 
@@ -56,7 +56,7 @@ Format for passages links:
          "start_pos": x,
          "end_pos": y, 
          "label": "entity_label",
-         "details": [...]
+         "details": {...}
         }, ...
     ]
 }
