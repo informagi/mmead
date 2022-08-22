@@ -1,7 +1,7 @@
 # mmead
 MS MARCO entity annotations and disambiguations
 
-### Data:
+### Data using [REL](https://github.com/informagi/REL):
 
 - [Mapping from Entity URL to Entity ID](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/entity_id_map.json.gz)
 - [Mapping from Entity ID to Entity URL](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/id_entity_map.json.gz)
