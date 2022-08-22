@@ -1,6 +1,19 @@
 # mmead
 MS MARCO entity annotations and disambiguations
 
+### Data:
+
+- [Mapping from Entity URL to Entity ID](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/entity_id_map.json.gz)
+- [Mapping from Entity ID to Entity URL](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/id_entity_map.json.gz)
+- [300D Wiki2Vec embeddings](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/enwiki-20190701-wiki2vec-dim300.tar.bz2)
+- [500D Wiki2Vec embeddings](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/enwiki-20190701-wiki2vec-dim500.tar.bz2)
+- [MSMARCO v1 doc Entity Links](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v1_docs_links_v1.0.json.gz)
+- [MSMARCO v1 passage Entity Links](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v1_passage_links_v1.0.json.gz)
+- [MSMARCO v2 doc Entity Links](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v2_doc_links_v1.0.tar)
+- [MSMARCO v2 passage Entity Links](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v2_passage_links_v1.0.tar)
+
+### Specifications:
+
 Format for document links:
 
 ```json
