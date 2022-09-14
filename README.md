@@ -18,30 +18,31 @@ Format for document links:
 
 ```json
 {
-"title": [],
-"headings": [],
-"body": [
-    {
-        "entity_id": 3434750,
-        "start_pos": 807,
-        "end_pos": 820,
-        "entity": "United States", 
-        "details": {
-            "tag": "LOC",
-            "md_score": 0.9995014071464539}
-        },
-    {
-        "entity_id": 3434750,
-        "start_pos": 1206,
-        "end_pos": 1219,
-        "entity": "United States",
-        "details": {
-            "tag": "LOC",
-            "md_score": 0.9995985925197601
+    "title": [],
+    "headings": [],
+    "body": [
+        {
+            "entity_id": 3434750,
+            "start_pos": 807,
+            "end_pos": 820,
+            "entity": "United States", 
+            "details": {
+                "tag": "LOC",
+                "md_score": 0.9995014071464539}
+            },
+        {
+            "entity_id": 3434750,
+            "start_pos": 1206,
+            "end_pos": 1219,
+            "entity": "United States",
+            "details": {
+                "tag": "LOC",
+                "md_score": 0.9995985925197601
+            }
         }
-    }
-], 
-"docid": "msmarco_doc_00_0"}
+    ], 
+    "docid": "msmarco_doc_00_0"
+}
 ```
 where: 
     - title: Entities found in the title field (In our example there are no entities found) 
