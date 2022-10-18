@@ -179,14 +179,11 @@ def _unpack(to_unpack, target_file, verbose, extension, subdirectory, to_file, v
         with gzip.open(to_unpack, 'rb') as read, open(target_file, 'wb') as write:
             write.write(read.read())
     elif extension == '.tar':
-        try:
-            cur_dir = os.curdir
-            os.chdir(os.path.join(get_cache_home(), subdirectory))
-            with tarfile.open(to_unpack, 'rb') as read:
-                read.extractall()
-            os.chdir(cur_dir)
-        finally:
-            os.remove(to_unpack)
+        cur_dir = os.curdir
+        os.chdir(os.path.join(get_cache_home(), subdirectory))
+        with tarfile.open(to_unpack, 'r') as read:
+            read.extractall()
+        os.chdir(cur_dir)
     else:
         raise ValueError("Extension not recognized.")
     return target_file
