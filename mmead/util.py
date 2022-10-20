@@ -62,14 +62,14 @@ def load_embeddings(key, db_path=os.path.join(get_cache_home(), 'mmead.db'), for
     return cursor
 
 
-def load_mappings(key):
+def load_mappings(key, force=True, verbose=True):
     if key not in MAPPING_INFO:
         raise ValueError(f'{key} is not a valid mapping identifier')
     path_to_data = download_and_unpack(key)
     return path_to_data
 
 
-def load_links(key):
+def load_links(key, force=True, verbose=True):
     if key not in LINK_INFO:
         raise ValueError(f'{key} is not a valid link identifier')
     path_to_data = download_and_unpack(key)
