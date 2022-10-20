@@ -10,7 +10,6 @@ from .connection import get_connection
 def load_embeddings(key, db_path=os.path.join(get_cache_home(), 'mmead.db'), force=False, verbose=True):
     if key not in EMBEDDING_INFO:
         raise ValueError(f'{key} is not a valid embedding identifier')
-    path_to_data = ''
     cursor = get_connection(db_path).cursor
     path_to_data = download_and_unpack(key)
     try:
@@ -35,7 +34,10 @@ def load_embeddings(key, db_path=os.path.join(get_cache_home(), 'mmead.db'), for
             try:
                 embedding = embedding_file.readline().strip().split()
                 identifier, values = embedding[0], [float(e) for e in embedding[1:]]
-                cursor.execute(f"INSERT INTO {key} VALUES (nextval('identifiers'), ?, {json.dumps(values)})", [identifier])
+                cursor.execute(
+                    f"INSERT INTO {key} VALUES (nextval('identifiers'), ?, {json.dumps(values)})",
+                    [identifier]
+                )
             except EOFError:
                 cursor.execute("ROLLBACK")
                 cursor.execute("DROP SEQUENCE identifiers")
