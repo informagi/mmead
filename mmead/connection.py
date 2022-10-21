@@ -21,4 +21,6 @@ class DBConnection(object):
 
     def __init__(self, database: str) -> None:
         self.connection = duckdb.connect(database)
+        self.connection.install_extension("json")
+        self.connection.load_extension("json")
         self.cursor = self.connection.cursor()
