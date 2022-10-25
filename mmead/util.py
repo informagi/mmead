@@ -83,6 +83,8 @@ def load_mappings(key, force=True, verbose=True):
     cursor.execute(f"SELECT * FROM read_json_objects('{path_to_data}')")
     for json_line in cursor.fetchall():
         mapping.update(json.loads(json_line[0]))
+    if verbose:
+        print("The mapping is available as a python dict...")
     return mapping
 
 
@@ -93,5 +95,32 @@ def load_links(key, force=True, verbose=True):
     cursor = _get_cursor()
     if _check_force(key, cursor, verbose, force):
         return cursor
+    if key == 'msmarco_v1_doc_links':
+        return _load_msmarco_v1_links(key, path_to_data, cursor, verbose)
+    elif key == 'msmarco_v1_passage_links':
+        return _load_msmarco_v1_links(key, path_to_data, cursor, verbose)
+    elif key == 'msmarco_v2_doc_links':
+        return _load_msmarco_v2_links(key, path_to_data, cursor, verbose)
+    elif key == 'msmarco_v2_passage_links':
+        return _load_msmarco_v2_links(key, path_to_data, cursor, verbose)
+    else:
+        raise ValueError("This key is not recognized")
 
+
+def _load_msmarco_v1_links(key, path_to_data, cursor, verbose):
+    cursor.execute(f"CREATE OR REPLACE TABLE {key} (j JSON)")
+    cursor.execute(f"INSERT INTO {key} SELECT * FROM read_json_objects('{path_to_data}')")
+    if verbose:
+        print(f"Table {key} is available..., with JSON column j...")
     return cursor
+
+
+def _load_msmarco_v2_links(key, path_to_data, cursor, verbose):
+    cursor.execute(f"CREATE OR REPLACE TABLE {key} (j JSON)")
+    for file in os.listdir(path_to_data):
+        filename = os.path.join(path_to_data, file)
+        cursor.execute(f"INSERT INTO {key} SELECT * FROM read_json_objects('{filename}')")
+    if verbose:
+        print(f"Table {key} is available..., with JSON column j...")
+    return cursor
+
