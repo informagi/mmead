@@ -35,38 +35,17 @@ def load_embeddings(key, force=False, verbose=True):
         return cursor
     with open(path_to_data, 'rt') as embedding_file:
         entries, dims = [int(e) for e in embedding_file.readline().strip().split()]
-        cursor.execute("START TRANSACTION")
-        cursor.execute(
-            f"CREATE OR REPLACE TABLE {key} (id INTEGER PRIMARY KEY, key VARCHAR, embedding REAL[])"
-        )
-        cursor.execute("CREATE TEMP SEQUENCE identifiers;")
-        for n in range(entries):
-            try:
-                embedding = embedding_file.readline().strip().split()
-                identifier, values = embedding[0], [float(e) for e in embedding[1:]]
-                cursor.execute(
-                    f"INSERT INTO {key} VALUES (nextval('identifiers'), ?, {json.dumps(values)})",
-                    [identifier]
-                )
-            except EOFError:
-                cursor.execute("ROLLBACK")
-                cursor.execute("DROP SEQUENCE identifiers")
-                raise ValueError("There is less data than the header suggests.")
-        try:
-            assert embedding_file.read() == ''
-        except AssertionError:
-            cursor.execute("ROLLBACK")
-            cursor.execute("DROP SEQUENCE identifiers")
-            raise ValueError("There is more data than the header suggests")
-        cursor.execute("COMMIT")
-        cursor.execute("DROP SEQUENCE identifiers")
-    if os.path.exists(path_to_data):
-        os.remove(path_to_data)
-    if os.path.isdir(os.path.dirname(path_to_data)):
-        try:
-            os.rmdir(os.path.dirname(path_to_data))
-        except OSError:
-            pass
+    cursor.execute("CREATE TEMP SEQUENCE identifiers;")
+    cursor.execute(f"""
+        CREATE OR REPLACE TABLE {key} AS 
+        SELECT 
+            nextval('identifiers') AS id, 
+            column000 AS key, 
+            {str(['column{:0>{}}'.format(i, str(len(str(dims)))) 
+                  for i in range(1,dims+1)]).replace("'", "")} AS embedding 
+        FROM read_csv_auto('{path_to_data}', skip=1, delim=' ')"""
+    )
+    cursor.execute("DROP SEQUENCE identifiers")
     if verbose:
         print(f"Table {key} is available...")
     return cursor
