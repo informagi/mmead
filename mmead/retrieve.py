@@ -164,8 +164,13 @@ def _unpack(to_unpack, target_file, verbose, extension, subdirectory, to_file, v
     if extension == '.tar.bz2':
         tmp_file = to_unpack[:-4]
         try:
-            with bz2.open(to_unpack, 'r') as infile, open(tmp_file, 'wb') as outfile:
-                outfile.write(infile.read())
+            decompressor = bz2.BZ2Decompressor()
+            with open(to_unpack, 'rb') as infile, open(tmp_file, 'wb') as outfile:
+                try:
+                    while True:
+                        outfile.write(decompressor.decompress(infile.read(1024**2)))
+                except EOFError:
+                    pass
             cur_dir = os.curdir
             os.chdir(os.path.join(get_cache_home(), subdirectory))
             with tarfile.open(tmp_file, 'r') as infile:
