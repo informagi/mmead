@@ -1,16 +1,14 @@
 EMBEDDING_INFO = {
-    "wiki2vec_300d": {  # todo: loading
+    "wiki2vec_300d": {
         "description": "300 Dimensional Wiki2Vec embedddings, includes entity embeddings and word embeddings.",
         "filename": "enwiki-20190701-wiki2vec-dim300.tar.bz2",
         "extension": ".tar.bz2",
-        # "url": "https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/enwiki-20190701-wiki2vec-dim300.tar.bz2",
-        "url": "http://gem.cs.ru.nl/enwiki-20190701-wiki2vec-dim300.tar.bz2",
-        # "md5": "fdb377a91cfc2d37c52bd7831f0a0ff4",
-        "md5": "2a9e75b903245a5928eea98f3bc5267a",
+        "url": "https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/enwiki-20190701-wiki2vec-dim300.tar.bz2",
+        "md5": "fdb377a91cfc2d37c52bd7831f0a0ff4",
         "to_file": "enwiki-20190701-model-w2v-dim300",
         "version": "wikipedia-20190701",
     },
-    "wiki2vec_500d": {  # todo: loading
+    "wiki2vec_500d": {
         "description": "500 Dimensional Wiki2Vec embedddings, includes entity embeddings and word embeddings.",
         "filename": "enwiki-20190701-wiki2vec-dim500.tar.bz2",
         "extension": ".tar.bz2",

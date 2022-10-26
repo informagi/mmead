@@ -8,7 +8,7 @@ from .connection import get_connection
 
 
 def _get_cursor():
-    return get_connection(os.path.join(get_cache_home(), 'mmead.db')).cursor
+    return get_connection().cursor
 
 
 def _check_force(key, cursor, verbose, force):
@@ -29,10 +29,10 @@ def _check_force(key, cursor, verbose, force):
 def load_embeddings(key, force=False, verbose=True):
     if key not in EMBEDDING_INFO:
         raise ValueError(f'{key} is not a valid embedding identifier')
-    path_to_data = download_and_unpack(key)
     cursor = _get_cursor()
     if _check_force(key, cursor, verbose, force):
         return cursor
+    path_to_data = download_and_unpack(key, force=force)
     with open(path_to_data, 'rt') as embedding_file:
         entries, dims = [int(e) for e in embedding_file.readline().strip().split()]
     cursor.execute("CREATE TEMP SEQUENCE identifiers;")
@@ -41,11 +41,18 @@ def load_embeddings(key, force=False, verbose=True):
         SELECT 
             nextval('identifiers') AS id, 
             column000 AS key, 
-            {str(['column{:0>{}}'.format(i, str(len(str(dims)))) 
-                  for i in range(1,dims+1)]).replace("'", "")} AS embedding 
+            {str(['column{:0>{}}'.format(i, str(len(str(dims))))
+                  for i in range(1, dims + 1)]).replace("'", "")} AS embedding 
         FROM read_csv_auto('{path_to_data}', skip=1, delim=' ')"""
-    )
+                   )
     cursor.execute("DROP SEQUENCE identifiers")
+    if os.path.exists(path_to_data):
+        os.remove(path_to_data)
+    if os.path.isdir(os.path.dirname(path_to_data)):
+        try:
+            os.rmdir(os.path.dirname(path_to_data))
+        except OSError:
+            pass
     if verbose:
         print(f"Table {key} is available...")
     return cursor
@@ -102,4 +109,3 @@ def _load_msmarco_v2_links(key, path_to_data, cursor, verbose):
     if verbose:
         print(f"Table {key} is available..., with JSON column j...")
     return cursor
-
