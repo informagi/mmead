@@ -1,6 +1,5 @@
 import os
 import duckdb
-import json
 
 from .download_info import EMBEDDING_INFO, LINK_INFO, MAPPING_INFO
 from .retrieve import download_and_unpack, get_cache_home
@@ -59,19 +58,33 @@ def load_embeddings(key, force=False, verbose=True):
 
 
 def load_mappings(key, force=True, verbose=True):
-    mapping = dict()
     if key not in MAPPING_INFO:
         raise ValueError(f'{key} is not a valid mapping identifier')
-    path_to_data = download_and_unpack(key)
     cursor = _get_cursor()
     if _check_force(key, cursor, verbose, force):
         return cursor
-    cursor.execute(f"SELECT * FROM read_json_objects('{path_to_data}')")
-    for json_line in cursor.fetchall():
-        mapping.update(json.loads(json_line[0]))
+    path_to_data = download_and_unpack(key)
+    if key == 'entity_id_mapping':  # Sorry for this ...
+        cursor.execute(f"""
+            CREATE TABLE {key} AS 
+            SELECT trim(trim(reverse(substring(reverse(text), strpos(reverse(text), ' :'),length(text))), '{{: ' ),
+                        '"') AS entity, 
+                   CAST(trim(reverse(substring(reverse(text), 0, strpos(reverse(text), ' :'))), '}}') AS INTEGER) AS id 
+            FROM read_csv_auto('{path_to_data}',
+                               delim='',
+                               columns={{'text': 'VARCHAR'}})
+        """)
+    else:  # and this...
+        cursor.execute(f"""
+            CREATE TABLE {key} AS 
+            SELECT 
+                CAST(trim(substring(text, 0, strpos(text, ': ')), '{{"') AS INT) AS id,
+                trim(trim(substring(text, strpos(text, ': '), length(text)), ': }}'), '"') AS entity
+            FROM read_csv_auto('{path_to_data}', delim='', columns={{'text': 'VARCHAR'}})
+        """)
     if verbose:
-        print("The mapping is available as a python dict...")
-    return mapping
+        print(f"Table {key} is available..., with columns id and entity")
+    return cursor
 
 
 def load_links(key, force=True, verbose=True):

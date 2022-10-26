@@ -65,18 +65,16 @@ LINK_INFO = {
 }
 
 MAPPING_INFO = {
-    "entity_id_mapping": {  # todo loading
+    "entity_id_mapping": {
         "description": "Mapping from textual entity identifier to numerical entity identifier",
         "filename": "entity_id_map.json.gz",
         "extension": ".gz",
-        #"url": "https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/entity_id_map.json.gz",
-        "url": "http://gem.cs.ru.nl/entity_id_map.json.gz",
-        #"md5": "8cf41b73b6678bd215df3ac3f6b27763",
-        "md5": "2a397b9aa4b19c84087c679eb33a6da8",
+        "url": "https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/entity_id_map.json.gz",
+        "md5": "8cf41b73b6678bd215df3ac3f6b27763",
         "version": "",
         "to_file": "entity_id_mapping.json",
     },
-    "id_entity_mapping": {  # todo loading
+    "id_entity_mapping": {
         "description": "Mapping from numerical entity identifier to textual entity identifier",
         "filename": "id_entity_map.json.gz",
         "extension": ".gz",
