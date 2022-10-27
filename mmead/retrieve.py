@@ -158,6 +158,21 @@ def download_url(url, save_dir, local_filename=None, md5=None, force=False, verb
     return destination_path
 
 
+def _is_within_directory(directory, target):
+    abs_directory = os.path.abspath(directory)
+    abs_target = os.path.abspath(target)
+    prefix = os.path.commonprefix([abs_directory, abs_target])
+    return prefix == abs_directory
+
+
+def _safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+    for member in tar.getmembers():
+        member_path = os.path.join(path, member.name)
+        if not _is_within_directory(path, member_path):
+            raise Exception("Attempted Path Traversal in Tar File")
+    tar.extractall(path, members, numeric_owner=numeric_owner)
+
+
 def _unpack(to_unpack, target_file, verbose, extension, subdirectory, to_file, version):
     if verbose:
         print(f'Unpacking {to_unpack} to {target_file}...')
@@ -174,21 +189,18 @@ def _unpack(to_unpack, target_file, verbose, extension, subdirectory, to_file, v
             cur_dir = os.curdir
             os.chdir(os.path.join(get_cache_home(), subdirectory))
             with tarfile.open(tmp_file, 'r') as infile:
-                infile.extractall()
-            os.chdir(cur_dir)
+                _safe_extract(infile, os.path.join(get_cache_home(), subdirectory))
             os.rename(os.path.join(get_cache_home(), subdirectory, version, to_file), target_file)
             os.rmdir(os.path.join(get_cache_home(), subdirectory, version))
         finally:
             os.remove(tmp_file)
     elif extension == '.gz':
-        with gzip.open(to_unpack, 'rb') as read, open(target_file, 'wb') as write:
-            write.write(read.read())
+        with gzip.open(to_unpack, 'rb') as infile, open(target_file, 'wb') as outfile:
+            while to_write := infile.read(1024*1024):
+                outfile.write(to_write)
     elif extension == '.tar':
-        cur_dir = os.curdir
-        os.chdir(os.path.join(get_cache_home(), subdirectory))
         with tarfile.open(to_unpack, 'r') as read:
-            read.extractall()
-        os.chdir(cur_dir)
+            _safe_extract(read, os.path.join(get_cache_home(), subdirectory))
     else:
         raise ValueError("Extension not recognized.")
     return target_file

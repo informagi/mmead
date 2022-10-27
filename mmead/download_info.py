@@ -21,14 +21,12 @@ EMBEDDING_INFO = {
 }
 
 LINK_INFO = {
-    "msmarco_v1_doc_links": {  # todo loading
+    "msmarco_v1_doc_links": {
         "description": "Entity Links for MS MARCO v1 Documents",
         "filename": "msmarco_v1_docs_links_v1.0.json.gz",
         "extension": ".gz",
-        #"url": "https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v1_docs_links_v1.0.json.gz",
-        "url": "http://gem.cs.ru.nl/msmarco_v1_docs_links_v1.0.json.gz",
-        #"md5": "b5c4e57db92047713b4ebef41afd3bef",
-        "md5": "bbd3158ea1788545288e2053b1e73f6b",
+        "url": "https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v1_docs_links_v1.0.json.gz",
+        "md5": "b5c4e57db92047713b4ebef41afd3bef",
         "version": "wikipedia-20190701",
         "to_file": "msmarco_v1_doc_links",
     },
