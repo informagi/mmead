@@ -160,8 +160,23 @@ def _load_msmarco_v1_doc_links(key, path_to_data, cursor, verbose):
 
 
 def _load_msmarco_v1_passage_links(key, path_to_data, cursor, verbose):
-    cursor.execute(f"CREATE OR REPLACE TABLE {key} (j JSON)")
-    cursor.execute(f"INSERT INTO {key} SELECT * FROM read_json_objects('{path_to_data}')")
+    cursor.execute(f"""
+        CREATE OR REPLACE TABLE {key} AS
+        SELECT
+            'passage' AS field,
+            q1.passage->>'entity_id' AS entity_id,
+            q1.passage->>'start_pos' AS start_pos,
+            q1.passage->>'end_pos' AS end_pos,
+            q1.passage->>'entity' AS entity,
+            CAST(q1.pid as VARCHAR) AS pid
+        FROM
+        (
+            SELECT
+                json(UNNEST(json_transform(j->>'passage', '["JSON"]'))) as passage , 
+                j->>'pid' as pid
+            FROM read_csv_auto('{path_to_data}', delim='', maximum_line_size='8000000', columns={{'j': 'JSON'}})
+        ) AS q1
+    """)
     # _remove_raw_data(path_to_data, verbose) % todo uncomment when finished
     if verbose:
         print(f"Table {key} is available...")
@@ -181,6 +196,7 @@ def _load_msmarco_v2_doc_links(key, path_to_data, cursor, verbose):
             id VARCHAR
         ); 
     """)
+    cursor.begin()
     for file in tqdm(os.listdir(path_to_data)):
         f = os.path.join(path_to_data, file)
         cursor.execute(f"""
@@ -239,6 +255,7 @@ def _load_msmarco_v2_doc_links(key, path_to_data, cursor, verbose):
                         FROM read_csv_auto('{f}', delim='', maximum_line_size='8000000', columns={{'j': 'JSON'}})
                     ) AS q1
             """)
+    cursor.commit()
     # _remove_raw_data(path_to_data, verbose) % todo uncomment when finished
     if verbose:
         print(f"Table {key} is available...")
