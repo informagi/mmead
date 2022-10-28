@@ -1,6 +1,8 @@
 import os
 import duckdb
 
+from tqdm import tqdm
+
 from .download_info import EMBEDDING_INFO, LINK_INFO, MAPPING_INFO
 from .retrieve import download_and_unpack
 from .connection import get_connection
@@ -58,7 +60,7 @@ def load_embeddings(key, force=False, verbose=True):
         FROM read_csv_auto('{path_to_data}', skip=1, delim=' ')
     """)
     cursor.execute("DROP SEQUENCE identifiers")
-    _remove_raw_data(path_to_data, verbose)
+    # _remove_raw_data(path_to_data, verbose) % todo uncomment when finished
     if verbose:
         print(f"Table {key} is available...")
     return cursor
@@ -89,7 +91,7 @@ def load_mappings(key, force=False, verbose=True):
                 CAST(trim(substring(text, 0, strpos(text, ': ')), '{{"') AS INT) AS id
             FROM read_csv_auto('{path_to_data}', delim='', columns={{'text': 'VARCHAR'}})
         """)
-    _remove_raw_data(path_to_data, verbose)
+    # _remove_raw_data(path_to_data, verbose) % todo uncomment when finished
     if verbose:
         print(f"Table {key} is available..., with columns id and entity")
     return cursor
@@ -131,7 +133,7 @@ def _load_msmarco_v1_doc_links(key, path_to_data, cursor, verbose):
         (
             SELECT json(UNNEST(json_transform(j->>'body', '["JSON"]'))) as body, 
                    j->>'docid' as id 
-            FROM read_csv_auto('{path_to_data}', delim='', maximum_line_size='8000000, columns={{'j': 'JSON'}}')
+            FROM read_csv_auto('{path_to_data}', delim='', maximum_line_size='8000000', columns={{'j': 'JSON'}})
         ) as q1
     """)
     cursor.execute(f"""
@@ -147,10 +149,11 @@ def _load_msmarco_v1_doc_links(key, path_to_data, cursor, verbose):
         (
             SELECT json(UNNEST(json_transform(j->>'title', '["JSON"]'))) as title, 
                    j->>'docid' as id 
-            FROM read_csv_auto('{path_to_data}', delim='', maximum_line_size='8000000, columns={{'j': 'JSON'}}')
-        ) as q1
+            FROM read_csv_auto('{path_to_data}', delim='', maximum_line_size='8000000', columns={{'j': 'JSON'}})
+        ) AS q1
     """)
     cursor.commit()
+    # _remove_raw_data(path_to_data, verbose) % todo uncomment when finished
     if verbose:
         print(f"Table {key} is available...")
     return cursor
@@ -159,18 +162,86 @@ def _load_msmarco_v1_doc_links(key, path_to_data, cursor, verbose):
 def _load_msmarco_v1_passage_links(key, path_to_data, cursor, verbose):
     cursor.execute(f"CREATE OR REPLACE TABLE {key} (j JSON)")
     cursor.execute(f"INSERT INTO {key} SELECT * FROM read_json_objects('{path_to_data}')")
+    # _remove_raw_data(path_to_data, verbose) % todo uncomment when finished
     if verbose:
         print(f"Table {key} is available...")
     return cursor
 
 
 def _load_msmarco_v2_doc_links(key, path_to_data, cursor, verbose):
-    cursor.execute(f"CREATE OR REPLACE TABLE {key} (j JSON)")
-    for file in os.listdir(path_to_data):
-        filename = os.path.join(path_to_data, file)
-        cursor.execute(f"INSERT INTO {key} SELECT * FROM read_json_objects('{filename}')")
+    cursor.execute(f"""
+        CREATE OR REPLACE TABLE {key} (
+            field VARCHAR,
+            entity_id INT,
+            start_pos INT,
+            end_pos INT,
+            entity VARCHAR,
+            segment INT,
+            doc_offset INT,
+            id VARCHAR
+        ); 
+    """)
+    for file in tqdm(os.listdir(path_to_data)):
+        f = os.path.join(path_to_data, file)
+        cursor.execute(f"""
+                INSERT INTO {key}
+                    SELECT
+                        'title' as field,
+                        q1.title->>'entity_id' AS entity_id,
+                        q1.title->>'start_pos' AS start_pos,
+                        q1.title->>'end_pos' AS end_pos,
+                        q1.title->>'entity' AS entity,
+                        CAST(str_split(q1.id, '_')[3] AS INT) AS segment,
+                        CAST(str_split(q1.id, '_')[4] AS INT) AS doc_offset,
+                        q1.id AS id 
+                    FROM 
+                    (
+                        SELECT json(UNNEST(json_transform(j->>'title', '["JSON"]'))) as title, 
+                               j->>'docid' as id 
+                        FROM read_csv_auto('{f}', delim='', maximum_line_size='8000000', columns={{'j': 'JSON'}})
+                    ) AS q1
+            """)
+        # headings
+        cursor.execute(f"""
+                INSERT INTO {key}
+                    SELECT
+                        'headings' as field,
+                        q1.headings->>'entity_id' AS entity_id,
+                        q1.headings->>'start_pos' AS start_pos,
+                        q1.headings->>'end_pos' AS end_pos,
+                        q1.headings->>'entity' AS entity,
+                        CAST(str_split(q1.id, '_')[3] AS INT) AS segment,
+                        CAST(str_split(q1.id, '_')[4] AS INT) AS doc_offset,
+                        q1.id AS id 
+                    FROM 
+                    (
+                        SELECT json(UNNEST(json_transform(j->>'headings', '["JSON"]'))) as headings, 
+                               j->>'docid' as id 
+                        FROM read_csv_auto('{f}', delim='', maximum_line_size='8000000', columns={{'j': 'JSON'}})
+                    ) AS q1
+            """)
+        # body
+        cursor.execute(f"""
+                INSERT INTO {key}
+                    SELECT
+                        'body' as field,
+                        q1.body->>'entity_id' AS entity_id,
+                        q1.body->>'start_pos' AS start_pos,
+                        q1.body->>'end_pos' AS end_pos,
+                        q1.body->>'entity' AS entity,
+                        CAST(str_split(q1.id, '_')[3] AS INT) AS segment,
+                        CAST(str_split(q1.id, '_')[4] AS INT) AS doc_offset,
+                        q1.id AS id 
+                    FROM 
+                    (
+                        SELECT json(UNNEST(json_transform(j->>'body', '["JSON"]'))) as body, 
+                               j->>'docid' as id 
+                        FROM read_csv_auto('{f}', delim='', maximum_line_size='8000000', columns={{'j': 'JSON'}})
+                    ) AS q1
+            """)
+    # _remove_raw_data(path_to_data, verbose) % todo uncomment when finished
     if verbose:
-        print(f"Table {key} is available..., with JSON column j...")
+        print(f"Table {key} is available...")
     return cursor
 
 
@@ -179,6 +250,7 @@ def _load_msmarco_v2_passage_links(key, path_to_data, cursor, verbose):
     for file in os.listdir(path_to_data):
         filename = os.path.join(path_to_data, file)
         cursor.execute(f"INSERT INTO {key} SELECT * FROM read_json_objects('{filename}')")
+    # _remove_raw_data(path_to_data, verbose) % todo uncomment when finished
     if verbose:
         print(f"Table {key} is available..., with JSON column j...")
     return cursor
