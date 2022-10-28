@@ -197,7 +197,7 @@ def _load_msmarco_v2_doc_links(key, path_to_data, cursor, verbose):
         ); 
     """)
     cursor.begin()
-    for file in tqdm(os.listdir(path_to_data)):
+    for file in tqdm(os.listdir(path_to_data), disable=(not verbose)):
         f = os.path.join(path_to_data, file)
         # title
         cursor.execute(f"""
@@ -277,7 +277,8 @@ def _load_msmarco_v2_passage_links(key, path_to_data, cursor, verbose):
             id VARCHAR
         ); 
     """)
-    for file in os.listdir(path_to_data):
+    cursor.begin()
+    for file in tqdm(os.listdir(path_to_data), disable=(not verbose)):
         f = os.path.join(path_to_data, file)
         cursor.execute(f"""
                 INSERT INTO {key}
@@ -297,6 +298,7 @@ def _load_msmarco_v2_passage_links(key, path_to_data, cursor, verbose):
                     FROM read_csv_auto('{f}', delim='', maximum_line_size='8000000', columns={{'j': 'JSON'}})
                 ) AS q1
             """)
+    cursor.commit()
     # _remove_raw_data(path_to_data, verbose) % todo uncomment when finished
     if verbose:
         print(f"Table {key} is available..., with JSON column j...")
