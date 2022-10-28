@@ -199,6 +199,7 @@ def _load_msmarco_v2_doc_links(key, path_to_data, cursor, verbose):
     cursor.begin()
     for file in tqdm(os.listdir(path_to_data)):
         f = os.path.join(path_to_data, file)
+        # title
         cursor.execute(f"""
                 INSERT INTO {key}
                     SELECT
@@ -263,10 +264,39 @@ def _load_msmarco_v2_doc_links(key, path_to_data, cursor, verbose):
 
 
 def _load_msmarco_v2_passage_links(key, path_to_data, cursor, verbose):
-    cursor.execute(f"CREATE OR REPLACE TABLE {key} (j JSON)")
+    cursor.execute(f"""
+        CREATE OR REPLACE TABLE {key} 
+        (
+            field VARCHAR,
+            entity_id INT,
+            start_pos INT,
+            end_pos INT,
+            entity VARCHAR,
+            segment INT,
+            passage_offset INT,
+            id VARCHAR
+        ); 
+    """)
     for file in os.listdir(path_to_data):
-        filename = os.path.join(path_to_data, file)
-        cursor.execute(f"INSERT INTO {key} SELECT * FROM read_json_objects('{filename}')")
+        f = os.path.join(path_to_data, file)
+        cursor.execute(f"""
+                INSERT INTO {key}
+                SELECT 
+                    'passage' AS field,
+                    q1.passage->>'entity_id' AS entity_id,
+                    q1.passage->>'start_pos' AS start_pos,
+                    q1.passage->>'end_pos' AS end_pos,
+                    q1.passage->>'entity' AS entity,
+                    CAST(str_split(q1.id, '_')[3] AS INT) AS segment,
+                    CAST(str_split(q1.id, '_')[4] AS INT) AS passage_offset,
+                    q1.id AS id 
+                FROM
+                (
+                    SELECT json(UNNEST(json_transform(j->>'passage', '["JSON"]'))) as passage, 
+                           j->>'docid' as id
+                    FROM read_csv_auto('{f}', delim='', maximum_line_size='8000000', columns={{'j': 'JSON'}})
+                ) AS q1
+            """)
     # _remove_raw_data(path_to_data, verbose) % todo uncomment when finished
     if verbose:
         print(f"Table {key} is available..., with JSON column j...")
