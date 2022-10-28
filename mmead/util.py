@@ -46,6 +46,8 @@ def load_embeddings(key, force=False, verbose=True):
     path_to_data = download_and_unpack(key, force=force)
     with open(path_to_data, 'rt') as embedding_file:
         entries, dims = [int(e) for e in embedding_file.readline().strip().split()]
+    if verbose:
+        print("Loading table in the database...")
     cursor.execute("CREATE TEMP SEQUENCE identifiers;")
     cursor.execute(f"""
         CREATE OR REPLACE TABLE {key} AS 
@@ -116,10 +118,6 @@ def _load_msmarco_v1_doc_links(key, path_to_data, cursor, verbose):
     if verbose:
         print("Loading the MS MARCO v1 document entity links, this might take a while...")
     cursor.begin()
-    cursor.execute("CREATE TEMP TABLE t1 (j JSON)")
-    cursor.execute(f"""
-        INSERT INTO t1 SELECT * FROM read_csv_auto('{path_to_data}', delim='', maximum_line_size='8000000')
-    """)
     cursor.execute(f"""
         CREATE OR REPLACE TABLE {key} AS
             SELECT 
@@ -133,7 +131,7 @@ def _load_msmarco_v1_doc_links(key, path_to_data, cursor, verbose):
         (
             SELECT json(UNNEST(json_transform(j->>'body', '["JSON"]'))) as body, 
                    j->>'docid' as id 
-            FROM t1
+            FROM read_csv_auto('{path_to_data}', delim='', maximum_line_size='8000000, columns={{'j': 'JSON'}}')
         ) as q1
     """)
     cursor.execute(f"""
@@ -149,10 +147,9 @@ def _load_msmarco_v1_doc_links(key, path_to_data, cursor, verbose):
         (
             SELECT json(UNNEST(json_transform(j->>'title', '["JSON"]'))) as title, 
                    j->>'docid' as id 
-            FROM t1
+            FROM read_csv_auto('{path_to_data}', delim='', maximum_line_size='8000000, columns={{'j': 'JSON'}}')
         ) as q1
     """)
-    cursor.execute("DROP TABLE t1")
     cursor.commit()
     if verbose:
         print(f"Table {key} is available...")

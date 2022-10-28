@@ -180,8 +180,10 @@ def _unpack(to_unpack, target_file, verbose, extension, subdirectory, to_file, v
         tmp_file = to_unpack[:-4]
         try:
             with bz2.open(to_unpack, 'rb') as infile, open(tmp_file, 'wb') as outfile:
-                while to_write := infile.read(1024**2):
-                    outfile.write(to_write)
+                with tqdm(desc=to_unpack, total=os.path.getsize(to_unpack)) as pbar:
+                    for line in infile:
+                        outfile.write(line)
+                        pbar.update(len(line.encode("utf-8")))
             with tarfile.open(tmp_file, 'r') as infile:
                 _safe_extract(infile, os.path.join(get_cache_home(), subdirectory))
             os.rename(os.path.join(get_cache_home(), subdirectory, version, to_file), target_file)
@@ -189,12 +191,16 @@ def _unpack(to_unpack, target_file, verbose, extension, subdirectory, to_file, v
         finally:
             os.remove(tmp_file)
     elif extension == '.gz':
-        with gzip.open(to_unpack, 'rb') as infile, open(target_file, 'wb') as outfile:
-            while to_write := infile.read(1024*1024):
-                outfile.write(to_write)
+        with gzip.open(to_unpack, 'rb') as infile, open(target_file, 'wb') as out:
+            with tqdm(desc=to_unpack, total=os.path.getsize(to_unpack)) as pbar:
+                for line in infile:
+                    out.write(line)
+                    pbar.update(len(line.encode("utf-8")))
     elif extension == '.tar':
         with tarfile.open(to_unpack, 'r') as read:
             _safe_extract(read, os.path.join(get_cache_home(), subdirectory))
     else:
         raise ValueError("Extension not recognized.")
+    if verbose:
+        print(f'Unpacking completed...')
     return target_file
