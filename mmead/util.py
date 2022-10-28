@@ -51,7 +51,8 @@ def load_embeddings(key, force=False, verbose=True):
         CREATE OR REPLACE TABLE {key} AS 
         SELECT nextval('identifiers') AS id, 
                column000 AS key, 
-               {str(['column{:0>{}}'.format(i, str(len(str(dims)))) for i in range(1, dims + 1)]).replace("'", "")} AS embedding 
+               {str(['column{:0>{}}'.format(i, str(len(str(dims)))) for i in range(1, dims + 1)]).replace("'", "")} 
+               AS embedding 
         FROM read_csv_auto('{path_to_data}', skip=1, delim=' ')
     """)
     cursor.execute("DROP SEQUENCE identifiers")
@@ -71,8 +72,10 @@ def load_mappings(key, force=False, verbose=True):
     if key == 'entity_id_mapping':  # Sorry for this ...
         cursor.execute(f"""
             CREATE TABLE {key} AS 
-            SELECT trim(trim(reverse(substring(reverse(text),strpos(reverse(text), ' :'), length(text))), '{{: ' ), '"') AS entity, 
-                   CAST(trim(reverse(substring(reverse(text), 0, strpos(reverse(text), ' :'))), '}}') AS INTEGER) AS id 
+            SELECT trim(trim(reverse(substring(reverse(text),strpos(reverse(text), ' :'), length(text))), '{{: ' ), '"')
+                   AS entity, 
+                   CAST(trim(reverse(substring(reverse(text), 0, strpos(reverse(text), ' :'))), '}}') AS INTEGER)
+                   AS id 
             FROM read_csv_auto('{path_to_data}', delim='', columns={{'text': 'VARCHAR'}})
         """)
     else:  # and this...
@@ -112,7 +115,9 @@ def _load_msmarco_v1_doc_links(key, path_to_data, cursor, verbose):
         print("Loading the MS MARCO v1 document entity links, this might take a while...")
     cursor.begin()
     cursor.execute("CREATE TEMP TABLE t1 (j JSON)")
-    cursor.execute(f"INSERT INTO t1 SELECT * FROM read_csv_auto('{path_to_data}', delim='', maximum_line_size='8000000')")
+    cursor.execute(f"""
+        INSERT INTO t1 SELECT * FROM read_csv_auto('{path_to_data}', delim='', maximum_line_size='8000000')
+    """)
     cursor.execute(f"""
         CREATE OR REPLACE TABLE {key} AS
             SELECT 

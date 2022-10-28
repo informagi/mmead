@@ -134,7 +134,7 @@ def _download(url, target_filename, subdirectory, tmp_folder, md5, verbose):
     return download_url(url, to_folder, local_filename=target_filename, verbose=verbose, md5=md5)
 
 
-def download_url(url, save_dir, local_filename=None, md5=None, force=False, verbose=True):
+def download_url(url, save_dir, local_filename=None, md5=None, verbose=True):
     # If caller does not specify local filename, figure it out from the download URL:
     if not local_filename:
         filename = url.split('/')[-1]
@@ -179,15 +179,9 @@ def _unpack(to_unpack, target_file, verbose, extension, subdirectory, to_file, v
     if extension == '.tar.bz2':
         tmp_file = to_unpack[:-4]
         try:
-            decompressor = bz2.BZ2Decompressor()
-            with open(to_unpack, 'rb') as infile, open(tmp_file, 'wb') as outfile:
-                try:
-                    while True:
-                        outfile.write(decompressor.decompress(infile.read(1024**2)))
-                except EOFError:
-                    pass
-            cur_dir = os.curdir
-            os.chdir(os.path.join(get_cache_home(), subdirectory))
+            with bz2.open(to_unpack, 'rb') as infile, open(tmp_file, 'wb') as outfile:
+                while to_write := infile.read(1024**2):
+                    outfile.write(to_write)
             with tarfile.open(tmp_file, 'r') as infile:
                 _safe_extract(infile, os.path.join(get_cache_home(), subdirectory))
             os.rename(os.path.join(get_cache_home(), subdirectory, version, to_file), target_file)
