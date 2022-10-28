@@ -72,17 +72,19 @@ def load_mappings(key, force=False, verbose=True):
     if key == 'entity_id_mapping':  # Sorry for this ...
         cursor.execute(f"""
             CREATE TABLE {key} AS 
-            SELECT trim(trim(reverse(substring(reverse(text),strpos(reverse(text), ' :'), length(text))), '{{: ' ), '"')
-                   AS entity, 
-                   CAST(trim(reverse(substring(reverse(text), 0, strpos(reverse(text), ' :'))), '}}') AS INTEGER)
-                   AS id 
+            SELECT 
+                trim(trim(reverse(substring(reverse(text),strpos(reverse(text), ' :'), length(text))), '{{: ' ), '"')
+                    AS entity, 
+                CAST(trim(reverse(substring(reverse(text), 0, strpos(reverse(text), ' :'))), '}}') AS INTEGER)
+                    AS id 
             FROM read_csv_auto('{path_to_data}', delim='', columns={{'text': 'VARCHAR'}})
         """)
     else:  # and this...
         cursor.execute(f"""
             CREATE TABLE {key} AS 
-            SELECT trim(trim(substring(text, strpos(text, ': '), length(text)), ': }}'), '"') AS entity,
-                   CAST(trim(substring(text, 0, strpos(text, ': ')), '{{"') AS INT) AS id
+            SELECT 
+                trim(trim(substring(text, strpos(text, ': '), length(text)), ': }}'), '"') AS entity,
+                CAST(trim(substring(text, 0, strpos(text, ': ')), '{{"') AS INT) AS id
             FROM read_csv_auto('{path_to_data}', delim='', columns={{'text': 'VARCHAR'}})
         """)
     _remove_raw_data(path_to_data, verbose)
