@@ -209,7 +209,7 @@ def _load_msmarco_v2_doc_links(key, path_to_data, cursor, verbose):
                         q1.title->>'end_pos' AS end_pos,
                         q1.title->>'entity' AS entity,
                         CAST(str_split(q1.id, '_')[3] AS INT) AS segment,
-                        CAST(str_split(q1.id, '_')[4] AS UINTEGER) AS doc_offset,
+                        CAST(str_split(q1.id, '_')[4] AS UINT64) AS doc_offset,
                         q1.id AS id 
                     FROM 
                     (
@@ -228,7 +228,7 @@ def _load_msmarco_v2_doc_links(key, path_to_data, cursor, verbose):
                         q1.headings->>'end_pos' AS end_pos,
                         q1.headings->>'entity' AS entity,
                         CAST(str_split(q1.id, '_')[3] AS INT) AS segment,
-                        CAST(str_split(q1.id, '_')[4] AS UINTEGER) AS doc_offset,
+                        CAST(str_split(q1.id, '_')[4] AS UINT64) AS doc_offset,
                         q1.id AS id 
                     FROM 
                     (
@@ -247,7 +247,7 @@ def _load_msmarco_v2_doc_links(key, path_to_data, cursor, verbose):
                         q1.body->>'end_pos' AS end_pos,
                         q1.body->>'entity' AS entity,
                         CAST(str_split(q1.id, '_')[3] AS INT) AS segment,
-                        CAST(str_split(q1.id, '_')[4] AS UINTEGER) AS doc_offset,
+                        CAST(str_split(q1.id, '_')[4] AS UINT64) AS doc_offset,
                         q1.id AS id 
                     FROM 
                     (
@@ -289,7 +289,7 @@ def _load_msmarco_v2_passage_links(key, path_to_data, cursor, verbose):
                     q1.passage->>'end_pos' AS end_pos,
                     q1.passage->>'entity' AS entity,
                     CAST(str_split(q1.id, '_')[3] AS INT) AS segment,
-                    CAST(str_split(q1.id, '_')[4] AS UINTEGER) AS passage_offset,
+                    CAST(str_split(q1.id, '_')[4] AS UINT64) AS passage_offset,
                     q1.id AS id 
                 FROM
                 (
