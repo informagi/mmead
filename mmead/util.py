@@ -192,7 +192,7 @@ def _load_msmarco_v2_doc_links(key, path_to_data, cursor, verbose):
             end_pos INT,
             entity VARCHAR,
             segment INT,
-            doc_offset UINTEGER,
+            doc_offset UINT64,
             id VARCHAR
         ); 
     """)
@@ -273,7 +273,7 @@ def _load_msmarco_v2_passage_links(key, path_to_data, cursor, verbose):
             end_pos INT,
             entity VARCHAR,
             segment INT,
-            passage_offset UINTEGER,
+            passage_offset UINT64,
             id VARCHAR
         ); 
     """)
