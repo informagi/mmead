@@ -160,6 +160,8 @@ def _load_msmarco_v1_doc_links(key, path_to_data, cursor, verbose):
 
 
 def _load_msmarco_v1_passage_links(key, path_to_data, cursor, verbose):
+    if verbose:
+        print("Loading the MS MARCO v1 document entity links, this might take a while...")
     cursor.execute(f"""
         CREATE OR REPLACE TABLE {key} AS
         SELECT
@@ -184,6 +186,9 @@ def _load_msmarco_v1_passage_links(key, path_to_data, cursor, verbose):
 
 
 def _load_msmarco_v2_doc_links(key, path_to_data, cursor, verbose):
+    if verbose:
+        print("Loading the MS MARCO v1 document entity links, this might take a while...")
+    cursor.begin()
     cursor.execute(f"""
         CREATE OR REPLACE TABLE {key} (
             field VARCHAR,
@@ -196,7 +201,6 @@ def _load_msmarco_v2_doc_links(key, path_to_data, cursor, verbose):
             id VARCHAR
         ); 
     """)
-    cursor.begin()
     for file in tqdm(os.listdir(path_to_data), disable=(not verbose)):
         f = os.path.join(path_to_data, file)
         # title
@@ -264,6 +268,9 @@ def _load_msmarco_v2_doc_links(key, path_to_data, cursor, verbose):
 
 
 def _load_msmarco_v2_passage_links(key, path_to_data, cursor, verbose):
+    if verbose:
+        print("Loading the MS MARCO v1 document entity links, this might take a while...")
+    cursor.begin()
     cursor.execute(f"""
         CREATE OR REPLACE TABLE {key} 
         (
@@ -277,7 +284,6 @@ def _load_msmarco_v2_passage_links(key, path_to_data, cursor, verbose):
             id VARCHAR
         ); 
     """)
-    cursor.begin()
     for file in tqdm(os.listdir(path_to_data), disable=(not verbose)):
         f = os.path.join(path_to_data, file)
         cursor.execute(f"""
