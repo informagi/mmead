@@ -19,7 +19,6 @@ EMBEDDING_INFO = {
     },
     '_folder': 'embeddings',
 }
-
 LINK_INFO = {
     "msmarco_v1_doc_links": {
         "description": "Entity Links for MS MARCO v1 Documents",
@@ -30,7 +29,7 @@ LINK_INFO = {
         "version": "wikipedia-20190701",
         "to_file": "msmarco_v1_doc_links",
     },
-    "msmarco_v1_passage_links": {  # todo loading
+    "msmarco_v1_passage_links": {
         "description": "Entity Links for MS MARCO v1 Passages",
         "filename": "msmarco_v1_passage_links_v1.0.json.gz",
         "extension": ".gz",
@@ -39,18 +38,16 @@ LINK_INFO = {
         "version": "wikipedia-20190701",
         "to_file": "msmarco_v1_passage_links",
     },
-    "msmarco_v2_doc_links": {  # todo loading
+    "msmarco_v2_doc_links": {
         "description": "Entity Links for MS MARCO v2 Documents",
         "filename": "msmarco_v2_doc_links_v1.0.tar",
         "extension": ".tar",
-        #  "url": "https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v2_doc_links_v1.0.tar",
-        "url": "http://gem.cs.ru.nl/msmarco_v2_doc_links_v1.0.tar",
-        #  "md5": "16aa44d80063dfb3a89aeb774ee3a77f",
-        "md5": "094af22515ab81193db648ce7e1078bf",
+        "url": "https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v2_doc_links_v1.0.tar",
+        "md5": "16aa44d80063dfb3a89aeb774ee3a77f",
         "version": "wikipedia-20190701",
         "to_file": "msmarco_v2_doc_links",
     },
-    "msmarco_v2_passage_links": {  # todo loading
+    "msmarco_v2_passage_links": {
         "description": "Entity Links for MS MARCO v2 Passages",
         "filename": "msmarco_v2_passage_links_v1.0.tar",
         "extension": ".tar",
