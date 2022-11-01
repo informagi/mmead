@@ -1,5 +1,4 @@
-# mmead
-MS MARCO entity annotations and disambiguations
+# MMEAD: MS MARCO Entity Annotations and Disambiguations
 
 ### Data using [REL](https://github.com/informagi/REL):
 
