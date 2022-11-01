@@ -8,8 +8,9 @@ class MsmarcoV1Docs:
         self.cursor = load_links(self.identifier, verbose=verbose)
 
     def load_links_from_docid(self, docid):
-        return self.cursor.execute(f"""
+        self.cursor.execute(f"""
             SELECT field, entity_id, start_pos, end_pos, entity, id 
             FROM '{self.identifier}'
             WHERE id = '{docid}'
         """)
+        return self.cursor.fetchall()
