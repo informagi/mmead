@@ -60,7 +60,7 @@ def load_embeddings(key, force=False, verbose=True):
         FROM read_csv_auto('{path_to_data}', skip=1, delim=' ')
     """)
     cursor.execute("DROP SEQUENCE identifiers")
-    # _remove_raw_data(path_to_data, verbose) % todo uncomment when finished
+    _remove_raw_data(path_to_data, verbose)
     if verbose:
         print(f"Table {key} is available...")
     return cursor
@@ -91,7 +91,7 @@ def load_mappings(key, force=False, verbose=True):
                 CAST(trim(substring(text, 0, strpos(text, ': ')), '{{"') AS INT) AS id
             FROM read_csv_auto('{path_to_data}', delim='', columns={{'text': 'VARCHAR'}})
         """)
-    # _remove_raw_data(path_to_data, verbose) % todo uncomment when finished
+    _remove_raw_data(path_to_data, verbose)
     if verbose:
         print(f"Table {key} is available..., with columns id and entity")
     return cursor
@@ -153,7 +153,7 @@ def _load_msmarco_v1_doc_links(key, path_to_data, cursor, verbose):
         ) AS q1
     """)
     cursor.commit()
-    # _remove_raw_data(path_to_data, verbose) % todo uncomment when finished
+    _remove_raw_data(path_to_data, verbose)
     if verbose:
         print(f"Table {key} is available...")
     return cursor
@@ -179,7 +179,7 @@ def _load_msmarco_v1_passage_links(key, path_to_data, cursor, verbose):
             FROM read_csv_auto('{path_to_data}', delim='', maximum_line_size='8000000', columns={{'j': 'JSON'}})
         ) AS q1
     """)
-    # _remove_raw_data(path_to_data, verbose) % todo uncomment when finished
+    _remove_raw_data(path_to_data, verbose)
     if verbose:
         print(f"Table {key} is available...")
     return cursor
@@ -261,7 +261,7 @@ def _load_msmarco_v2_doc_links(key, path_to_data, cursor, verbose):
                     ) AS q1
             """)
     cursor.commit()
-    # _remove_raw_data(path_to_data, verbose) % todo uncomment when finished
+    _remove_raw_data(path_to_data, verbose)
     if verbose:
         print(f"Table {key} is available...")
     return cursor
@@ -305,7 +305,7 @@ def _load_msmarco_v2_passage_links(key, path_to_data, cursor, verbose):
                 ) AS q1
             """)
     cursor.commit()
-    # _remove_raw_data(path_to_data, verbose) % todo uncomment when finished
+    _remove_raw_data(path_to_data, verbose)
     if verbose:
         print(f"Table {key} is available..., with JSON column j...")
     return cursor
