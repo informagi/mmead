@@ -12,7 +12,7 @@ from tqdm import tqdm
 from .download_info import EMBEDDING_INFO, LINK_INFO, MAPPING_INFO
 
 
-def get_cache_home():
+def _get_cache_home():
     custom_dir = os.environ.get("MMEAD_CACHE")
     if custom_dir is not None and custom_dir != '':
         return custom_dir
@@ -37,7 +37,7 @@ class TqdmUpTo(tqdm):
 
 # For large files, we need to compute MD5 block by block. See:
 # https://stackoverflow.com/questions/1131220/get-md5-hash-of-big-files-in-python
-def compute_md5(file, block_size=2**20):
+def _compute_md5(file, block_size=2**20):
     m = hashlib.md5()
     with open(file, 'rb') as f:
         while True:
@@ -60,9 +60,9 @@ def download_and_unpack(name, force=False, verbose=True):
     target = info[name]
     subdirectory = info['_folder']
     try:
-        to_file = os.path.join(get_cache_home(), subdirectory, target['to_file'])
+        to_file = os.path.join(_get_cache_home(), subdirectory, target['to_file'])
     except KeyError:
-        to_file = os.path.join(get_cache_home(), subdirectory, f"{target['filename'][:-len(target['extension'])]}")
+        to_file = os.path.join(_get_cache_home(), subdirectory, f"{target['filename'][:-len(target['extension'])]}")
 
     # If file already exists, and if not force we can skip
     if os.path.exists(to_file):
@@ -101,7 +101,7 @@ def download_and_unpack(name, force=False, verbose=True):
         tmp_folder = f"{target['filename'][:-len(target['extension'])]}.{target['md5']}"
         os.remove(
             os.path.join(
-                get_cache_home(),
+                _get_cache_home(),
                 subdirectory,
                 tmp_folder,
                 target['filename']
@@ -109,7 +109,7 @@ def download_and_unpack(name, force=False, verbose=True):
         )
         os.rmdir(
             os.path.join(
-                get_cache_home(),
+                _get_cache_home(),
                 subdirectory,
                 tmp_folder
             )
@@ -118,7 +118,7 @@ def download_and_unpack(name, force=False, verbose=True):
 
 def _download(url, target_filename, subdirectory, tmp_folder, md5, verbose):
     # Create directory where to copy data to
-    to_folder = os.path.join(get_cache_home(), subdirectory, tmp_folder)
+    to_folder = os.path.join(_get_cache_home(), subdirectory, tmp_folder)
 
     if not os.path.exists(to_folder):
         os.makedirs(to_folder)
@@ -152,7 +152,7 @@ def download_url(url, save_dir, local_filename=None, md5=None, verbose=True):
         urlretrieve(url, filename=destination_path, reporthook=t.update_to)
 
     if md5:
-        md5_computed = compute_md5(destination_path)
+        md5_computed = _compute_md5(destination_path)
         assert md5_computed == md5, f'{destination_path} does not match checksum! Expecting {md5} got {md5_computed}.'
 
     return destination_path
@@ -185,9 +185,9 @@ def _unpack(to_unpack, target_file, verbose, extension, subdirectory, to_file, v
                 for line in infile:
                     outfile.write(line)
             with tarfile.open(tmp_file, 'r') as infile:
-                _safe_extract(infile, os.path.join(get_cache_home(), subdirectory))
-            os.rename(os.path.join(get_cache_home(), subdirectory, version, to_file), target_file)
-            os.rmdir(os.path.join(get_cache_home(), subdirectory, version))
+                _safe_extract(infile, os.path.join(_get_cache_home(), subdirectory))
+            os.rename(os.path.join(_get_cache_home(), subdirectory, version, to_file), target_file)
+            os.rmdir(os.path.join(_get_cache_home(), subdirectory, version))
         finally:
             os.remove(tmp_file)
     elif extension == '.gz':
@@ -198,7 +198,7 @@ def _unpack(to_unpack, target_file, verbose, extension, subdirectory, to_file, v
                 out.write(line)
     elif extension == '.tar':
         with tarfile.open(to_unpack, 'r') as read:
-            _safe_extract(read, os.path.join(get_cache_home(), subdirectory))
+            _safe_extract(read, os.path.join(_get_cache_home(), subdirectory))
     else:
         raise ValueError("Extension not recognized.")
     if verbose:
