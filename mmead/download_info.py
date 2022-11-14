@@ -19,6 +19,7 @@ EMBEDDING_INFO = {
     },
     '_folder': 'embeddings',
 }
+
 LINK_INFO = {
     "msmarco_v1_doc_links": {
         "description": "Entity Links for MS MARCO v1 Documents",

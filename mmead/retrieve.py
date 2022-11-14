@@ -89,7 +89,7 @@ def download_and_unpack(name, force=False, verbose=True):
     try:
         return _unpack(
             to_unpack=downloaded,
-            target_file=to_file,
+            target_file=to_file,  # full path
             verbose=verbose,
             extension=target['extension'],
             subdirectory=subdirectory,
