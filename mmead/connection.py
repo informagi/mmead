@@ -34,5 +34,6 @@ class DBConnection(object):
         self.connection.install_extension("json")
         self.connection.load_extension("json")
         self.connection.execute(f"SET memory_limit='{self.mem}GB'")
-        self.connection.execute("SET experimental_parallel_csv=true;")
+        # self.connection.execute("SET experimental_parallel_csv=true;")
+        # until https://github.com/duckdb/duckdb/issues/5438 is fixed
         self.cursor = self.connection.cursor()
