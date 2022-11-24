@@ -1,5 +1,3 @@
-from abc import ABC
-
 from ..util import load_links
 
 
@@ -26,7 +24,7 @@ class Links:
     def load_links_from_docid(self, docid):
         raise NotImplementedError()
 
-    def load_docs_from_entity_id(self):
+    def load_links_from_docids(self, docid):
         raise NotImplementedError()
 
 
@@ -42,7 +40,7 @@ class V1PassageLinks(Links):
         """)
         return self.fetch()
 
-    def load_docs_from_entity_id(self):
+    def load_links_from_docids(self, docid):
         raise NotImplementedError()
 
 
@@ -58,7 +56,7 @@ class V1DocLinks(Links):
         """)
         return self.fetch()
 
-    def load_docs_from_entity_id(self):
+    def load_links_from_docids(self, docid):
         raise NotImplementedError()
 
 
@@ -79,7 +77,7 @@ class V2PassageLinks(Links):
         """)
         return self.fetch()
 
-    def load_docs_from_entity_id(self):
+    def load_links_from_docids(self, docid):
         raise NotImplementedError()
 
 
@@ -100,6 +98,5 @@ class V2DocLinks(Links):
         """)
         return self.fetch()
 
-    def load_docs_from_entity_id(self):
+    def load_links_from_docids(self, docid):
         raise NotImplementedError()
-
