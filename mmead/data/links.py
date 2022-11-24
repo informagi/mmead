@@ -67,10 +67,15 @@ class V2PassageLinks(Links):
         super().__init__(key="msmarco_v2_passage_links", verbose=verbose)
 
     def load_links_from_docid(self, docid):
+        _, __, segment, offset = docid.split('_')
+        return self.load_links_from_segment_and_offset(segment, offset)
+
+    def load_links_from_segment_and_offset(self, segment, offset):
         self.cursor.execute(f"""
-            SELECT field, entity_id, start_pos, end_pos, entity, id 
+            SELECT field, entity_id, start_pos, end_pos, entity, id
             FROM {self.identifier}
-            WHERE id = '{docid}'
+            WHERE segment = '{segment}'
+            AND passage_offset = '{offset}'
         """)
         return self.fetch()
 
