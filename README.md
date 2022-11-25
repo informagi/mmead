@@ -1,7 +1,29 @@
 # MMEAD: MS MARCO Entity Annotations and Disambiguations
 
-### Data using [REL](https://github.com/informagi/REL):
+## What is MMEAD?
+MMEAD, or MS MARCO Entity Annoations and Disambiguations, is a specification for entity links
+for the [MSMARCO](https://microsoft.github.io/msmarco/) dataset. MMEAD proposes a JSON specification on how
+entity links can be shared for easier usage of entity links. Entity links produced by the
+[Radboud Entity Linker (REL)](https://github.com/informargi/rel) are provided. Code to easily work with this data is available.
 
+## How to use
+If you load a class that uses the entity links, the data is automatically downloaded the first time you use it.
+The following code will load the entity links for the MSMARCO v1 passage collection:
+```Python3
+>>> from mmead import get_links
+>>> links = get_links('v1', 'passage')
+```
+After downloading and using the data for the first time, the data will be stored in cache. The first time
+it might take some time, but afterwards you can access the data quite quickly:
+```python3
+>>> print(links.load_links_from_docid(123))
+[('passage', '7954681', '126', '134', 'Montreal', '123')]
+```
+
+## Available data:
+The following data is available through MMEAD: 
+
+### Data using [REL](https://github.com/informagi/REL):
 - [Mapping from Entity URL to Entity ID](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/entity_id_map.json.gz)
 - [Mapping from Entity ID to Entity URL](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/id_entity_map.json.gz)
 - [300D Wiki2Vec embeddings](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/enwiki-20190701-wiki2vec-dim300.tar.bz2)
@@ -11,8 +33,10 @@
 - [MSMARCO v2 doc Entity Links](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v2_doc_links_v1.0.tar)
 - [MSMARCO v2 passage Entity Links](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v2_passage_links_v1.0.tar)
 
-### Specifications:
+MMEAD provides code that automatically downloads the data and provides it
+through a database, so you do not have to download it manually. 
 
+### Specifications:
 Format for document links:
 
 ```json
@@ -27,8 +51,9 @@ Format for document links:
             "entity": "United States", 
             "details": {
                 "tag": "LOC",
-                "md_score": 0.9995014071464539}
-            },
+                "md_score": 0.9995014071464539
+            }
+        },       
         {
             "entity_id": 3434750,
             "start_pos": 1206,
