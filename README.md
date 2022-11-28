@@ -43,13 +43,15 @@ Format for document links:
 {
     "title": [],
     "headings": [],
-    "body": [
+    "body": 
+    [
         {
             "entity_id": 3434750,
             "start_pos": 807,
             "end_pos": 820,
             "entity": "United States", 
-            "details": {
+            "details": 
+            {
                 "tag": "LOC",
                 "md_score": 0.9995014071464539
             }
@@ -59,7 +61,8 @@ Format for document links:
             "start_pos": 1206,
             "end_pos": 1219,
             "entity": "United States",
-            "details": {
+            "details": 
+            {
                 "tag": "LOC",
                 "md_score": 0.9995985925197601
             }
@@ -85,13 +88,15 @@ Format for passages links:
 
 ```json
 {
-    "passage": [
+    "passage": 
+    [
         {
             "entity_id": 965751,
             "start_pos": 181,
             "end_pos": 187,
             "entity": "BMW M3",
-            "details": {
+            "details": 
+            {
                 "tag": "MISC",
                 "md_score": 0.6411977410316467
             }
@@ -101,7 +106,8 @@ Format for passages links:
             "start_pos": 241,
             "end_pos": 253,
             "entity": "Chevrolet Corvette",
-            "details": {
+            "details": 
+            {
                 "tag": "MISC",
                 "md_score": 0.8472966551780701
             }
