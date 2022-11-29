@@ -23,7 +23,7 @@ class Embeddings:
         self.cursor.execute(f"""
             SELECT embedding 
             FROM wiki2vec_300d
-            WHERE key = '{word}'
+            WHERE key = lower('{word}')
             LIMIT 1
         """)
         try:
