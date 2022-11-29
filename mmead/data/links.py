@@ -11,7 +11,7 @@ def get_links(version, passage_or_doc, verbose=True):
     elif version == 'v2' and passage_or_doc == 'doc':
         return V2DocLinks(verbose)
     else:
-        raise IOError("version should be v1 or v2, passage_or_doc should be passage or doc..")
+        raise IOError("version should be v1 or v2, passage_or_doc should be passage or doc ...")
 
 
 class Links:
@@ -19,7 +19,7 @@ class Links:
     def __init__(self, key, verbose=True):
         self.identifier = key
         self.cursor = load_links(self.identifier, verbose=verbose)
-        self.fetch = self.cursor.fetchall
+        self.fetch = self.cursor.fetchdf
 
     def load_links_from_docid(self, docid):
         raise NotImplementedError()
