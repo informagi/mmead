@@ -1,7 +1,7 @@
 from ..util import load_mappings
 
 
-def get_mappings(verbose):
+def get_mappings(verbose=True):
     return Mapping(verbose)
 
 
@@ -11,7 +11,7 @@ class Mapping:
         self.cursor = load_mappings("entity_id_mapping", verbose=verbose)
         self.fetch = self.cursor.fetchone
 
-    def get_entity_from_identifier(self, identifier):
+    def get_entity_from_id(self, identifier):
         self.cursor.execute(f"""
             SELECT entity
             FROM entity_id_mapping

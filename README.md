@@ -7,6 +7,9 @@ entity links can be shared for easier usage of entity links. Entity links produc
 [Radboud Entity Linker (REL)](https://github.com/informargi/rel) are provided. Code to easily work with this data is available.
 
 ## How to use
+MMEAD provides an API to easily use the data we provide.
+
+### Entity Links
 If you load a class that uses the entity links, the data is automatically downloaded the first time you use it.
 The following code will load the entity links for the MSMARCO v1 passage collection:
 ```Python3
@@ -19,6 +22,41 @@ it might take some time, but afterwards you can access the data quite quickly:
 >>> print(links.load_links_from_docid(123))
 [('passage', '7954681', '126', '134', 'Montreal', '123')]
 ```
+
+### Embeddings
+We also provide the [Wikipedia2Vec](https://wikipedia2vec.github.io/wikipedia2vec/) embeddings of the wikipedia dump 
+that we linked to. Wikipedia2Vec embeddings contain both word and entity embeddings, we can retrieve both:
+```Python3
+>>> from mmead import get_embeddings
+>>> e = get_embeddings(300, verbose=False)
+>>> montreal_word = e.load_word_embedding("Montreal")
+>>> montreal_word[:5]
+[-0.1258 -0.5049 -0.0563  0.4908  0.3244]
+```
+
+The dot-product can be used to measure similarity:
+```Python3
+>>> montreal_word = e.load_word_embedding("Montreal")
+>>> montreal_entity = e.load_entity_embedding("Montreal")
+>>> green_word = e.load_word_embedding("green")
+
+>>> montreal_word @ montreal_entity
+31.83191792
+>>> montreal_word @ green_word
+5.55568354
+```
+
+### Mappings
+There is also a mapping from entity text to its id available, or the other way around:
+```Python3
+>>> from mmead import get_mappings
+>>> m = get_mappings(verbose=False)
+>>> m.get_id_from_entity('Montreal')
+7954681
+>>> m.get_entity_from_id(7954681)
+'Montreal'
+```
+
 
 ## Available data:
 The following data is available through MMEAD: 
