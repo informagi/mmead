@@ -17,10 +17,10 @@ class Mapping:
             FROM entity_id_mapping
             WHERE id = {identifier}
         """)
-        try:
-            return self.fetch()[0]
-        except TypeError:
-            raise ValueError(f"There is not entry for id {identifier} ...")
+        if (res := self.fetch()) is not None:
+            return res[0]
+        else:
+            raise ValueError(f"No result available for id {identifier} ...")
 
     def get_id_from_entity(self, entity):
         self.cursor.execute(f"""
@@ -28,7 +28,7 @@ class Mapping:
             FROM entity_id_mapping
             WHERE entity = '{entity}'
         """)
-        try:
-            return self.cursor.fetchone()[0]
-        except TypeError:
-            raise ValueError(f"There is not entry for entity {entity} ...")
+        if (res := self.fetch()) is not None:
+            return res[0]
+        else:
+            raise ValueError(f"No result available for entity {entity} ...")

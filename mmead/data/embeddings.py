@@ -26,10 +26,10 @@ class Embeddings:
             WHERE key = lower('{word}')
             LIMIT 1
         """)
-        try:
-            return np.array(self.fetch()[0])
-        except TypeError:
-            raise ValueError(f"There is no word embedding available for word {word}")
+        if (res := self.fetch()) is not None:
+            return np.array(res[0])
+        else:
+            raise ValueError(f"No result available for word {word} ...")
 
     def load_entity_embedding(self, entity):
         self.cursor.execute(f"""
@@ -38,7 +38,7 @@ class Embeddings:
             WHERE key = 'ENTITY/{entity.replace(' ', '_')}'
             LIMIT 1
         """)
-        try:
-            return np.array(self.fetch()[0])
-        except TypeError:
-            raise ValueError(f"There is no word embedding available for word {entity}")
+        if (res := self.fetch()) is not None:
+            return np.array(res[0])
+        else:
+            raise ValueError(f"No result available for enitity {entity} ...")
