@@ -98,12 +98,6 @@ class V2PassageLinks(Links):
         return self.load_links_from_segment_and_offset(docid, segment, offset)
 
     def load_links_from_segment_and_offset(self, docid, segment, offset):
-        # self.cursor.execute(f"""
-        #     SELECT field, entity_id, start_pos, end_pos, entity, id
-        #     FROM {self.identifier}
-        #     WHERE segment = '{segment}'
-        #     AND passage_offset = '{offset}'
-        # """)
         self.cursor.execute(f"""
             SELECT to_json(
                 {{
