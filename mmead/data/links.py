@@ -19,7 +19,6 @@ class Links:
     def __init__(self, key, verbose=True):
         self.identifier = key
         self.cursor = load_links(self.identifier, verbose=verbose)
-        self.fetch = self.cursor.fetchdf
 
     def load_links_from_docid(self, docid):
         raise NotImplementedError()
@@ -34,11 +33,26 @@ class V1PassageLinks(Links):
 
     def load_links_from_docid(self, docid):
         self.cursor.execute(f"""
-            SELECT field, entity_id, start_pos, end_pos, entity, pid 
-            FROM {self.identifier}
-            WHERE pid = '{docid}'
+            SELECT to_json(
+                {{
+                    'passage': json_group_array(x),
+                    'pid': '{docid}'
+                }}
+            )
+            FROM (
+                SELECT to_json(
+                    {{
+                        'entity_id': entity_id,
+                        'start_pos': start_pos,
+                        'end_pos': end_pos,
+                        'entity': entity,
+                    }}
+                ) AS x
+                FROM {self.identifier}
+                WHERE pid = {docid}
+            )
         """)
-        return self.fetch()
+        return self.cursor.fetchone()[0]
 
     def load_links_from_docids(self, docid):
         raise NotImplementedError()
@@ -50,11 +64,26 @@ class V1DocLinks(Links):
 
     def load_links_from_docid(self, docid):
         self.cursor.execute(f"""
-            SELECT field, entity_id, start_pos, end_pos, entity, id 
-            FROM {self.identifier}
-            WHERE id = '{docid}'
+            SELECT to_json(
+                {{
+                    'body': json_group_array(x),
+                    'docid': '{docid}'
+                }}
+            )
+            FROM (
+                SELECT to_json(
+                    {{
+                        'entity_id': entity_id,
+                        'start_pos': start_pos,
+                        'end_pos': end_pos,
+                        'entity': entity 
+                    }}
+                ) as x
+                FROM {self.identifier}
+                WHERE id = '{docid}'
+            )
         """)
-        return self.fetch()
+        return self.cursor.fetchone()[0]
 
     def load_links_from_docids(self, docid):
         raise NotImplementedError()
@@ -75,7 +104,7 @@ class V2PassageLinks(Links):
             WHERE segment = '{segment}'
             AND passage_offset = '{offset}'
         """)
-        return self.fetch()
+        return self.cursor.fetchone()[0]
 
     def load_links_from_docids(self, docid):
         raise NotImplementedError()
@@ -96,7 +125,7 @@ class V2DocLinks(Links):
             WHERE segment = '{segment}'
             AND doc_offset = '{offset}'
         """)
-        return self.fetch()
+        return self.cursor.fetchone()[0]
 
     def load_links_from_docids(self, docid):
         raise NotImplementedError()
