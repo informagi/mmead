@@ -129,8 +129,8 @@ def _download(url, target_filename, subdirectory, tmp_folder, md5, verbose):
     # So, we want to remove.
     if os.path.exists(to_file):
         os.remove(to_file)
-
-    print(f'Downloading data at {url}...')
+    if verbose:
+        print(f'Downloading data at {url}...')
     return download_url(url, to_folder, local_filename=target_filename, verbose=verbose, md5=md5)
 
 
@@ -148,7 +148,7 @@ def download_url(url, save_dir, local_filename=None, md5=None, verbose=True):
     if verbose:
         print(f'Downloading {url} to {destination_path}...')
 
-    with TqdmUpTo(unit='B', unit_scale=True, unit_divisor=1024, miniters=1, desc=filename) as t:
+    with TqdmUpTo(unit='B', unit_scale=True, unit_divisor=1024, miniters=1, desc=filename, disable=(not verbose)) as t:
         urlretrieve(url, filename=destination_path, reporthook=t.update_to)
 
     if md5:

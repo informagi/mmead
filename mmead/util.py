@@ -204,6 +204,7 @@ def _load_msmarco_v1_passage_links(key, path_to_data, cursor, verbose):
                 FROM read_csv_auto('{path_to_data}', delim='', maximum_line_size='8000000', columns={{'j': 'JSON'}})
             ) AS q1
         """)
+        cursor.commit()
     except Exception as e:
         cursor.rollback()
         cursor.execute(f"DROP TABLE IF EXISTS {key}")
