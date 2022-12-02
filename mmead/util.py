@@ -120,8 +120,18 @@ def _load_msmarco_v1_doc_links(key, path_to_data, cursor, verbose):
     cursor.begin()
     try:
         cursor.execute(f"""
-            CREATE OR REPLACE TABLE {key} AS
-                SELECT 
+            CREATE OR REPLACE TABLE {key} (
+                field VARCHAR,
+                entity_id INT,
+                start_pos INT,
+                end_pos INT,
+                entity VARCHAR,
+                id UINT64
+            ); 
+        """)
+        cursor.execute(f"""
+            INSERT INTO {key}
+            SELECT 
                 'body' AS field,
                 q1.body->>'entity_id' AS entity_id,
                 q1.body->>'start_pos' AS start_pos,
@@ -165,23 +175,39 @@ def _load_msmarco_v1_doc_links(key, path_to_data, cursor, verbose):
 def _load_msmarco_v1_passage_links(key, path_to_data, cursor, verbose):
     if verbose:
         print("Loading the MS MARCO v1 passage entity links, this might take a while...")
-    cursor.execute(f"""
-        CREATE OR REPLACE TABLE {key} AS
-        SELECT
-            'passage' AS field,
-            q1.passage->>'entity_id' AS entity_id,
-            q1.passage->>'start_pos' AS start_pos,
-            q1.passage->>'end_pos' AS end_pos,
-            q1.passage->>'entity' AS entity,
-            CAST(q1.pid as VARCHAR) AS pid
-        FROM
-        (
+    cursor.begin()
+    try:
+        cursor.execute(f"""
+            CREATE OR REPLACE TABLE {key} (
+                field VARCHAR,
+                entity_id INT,
+                start_pos INT,
+                end_pos INT,
+                entity VARCHAR,
+                pid UINT64
+            ); 
+        """)
+        cursor.execute(f"""
+            INSERT INTO {key}
             SELECT
-                json(UNNEST(json_transform(j->>'passage', '["JSON"]'))) as passage , 
-                j->>'pid' as pid
-            FROM read_csv_auto('{path_to_data}', delim='', maximum_line_size='8000000', columns={{'j': 'JSON'}})
-        ) AS q1
-    """)
+                'passage' AS field,
+                q1.passage->>'entity_id' AS entity_id,
+                q1.passage->>'start_pos' AS start_pos,
+                q1.passage->>'end_pos' AS end_pos,
+                q1.passage->>'entity' AS entity,
+                CAST(q1.pid as VARCHAR) AS pid
+            FROM
+            (
+                SELECT
+                    json(UNNEST(json_transform(j->>'passage', '["JSON"]'))) as passage , 
+                    j->>'pid' as pid
+                FROM read_csv_auto('{path_to_data}', delim='', maximum_line_size='8000000', columns={{'j': 'JSON'}})
+            ) AS q1
+        """)
+    except Exception as e:
+        cursor.rollback()
+        cursor.execute(f"DROP TABLE IF EXISTS {key}")
+        raise e
     _remove_raw_data(path_to_data, verbose)
     if verbose:
         print(f"Table {key} is available...")
@@ -210,59 +236,59 @@ def _load_msmarco_v2_doc_links(key, path_to_data, cursor, verbose):
             # title
             cursor.execute(f"""
                     INSERT INTO {key}
-                        SELECT
-                            'title' as field,
-                            q1.title->>'entity_id' AS entity_id,
-                            q1.title->>'start_pos' AS start_pos,
-                            q1.title->>'end_pos' AS end_pos,
-                            q1.title->>'entity' AS entity,
-                            CAST(str_split(q1.id, '_')[3] AS INT) AS segment,
-                            CAST(str_split(q1.id, '_')[4] AS UINT64) AS doc_offset,
-                            q1.id AS id 
-                        FROM 
-                        (
-                            SELECT json(UNNEST(json_transform(j->>'title', '["JSON"]'))) as title, 
-                                   j->>'docid' as id 
-                            FROM read_csv_auto('{f}', delim='', maximum_line_size='8000000', columns={{'j': 'JSON'}})
-                        ) AS q1
+                    SELECT
+                        'title' as field,
+                        q1.title->>'entity_id' AS entity_id,
+                        q1.title->>'start_pos' AS start_pos,
+                        q1.title->>'end_pos' AS end_pos,
+                        q1.title->>'entity' AS entity,
+                        CAST(str_split(q1.id, '_')[3] AS INT) AS segment,
+                        CAST(str_split(q1.id, '_')[4] AS UINT64) AS doc_offset,
+                        q1.id AS id 
+                    FROM 
+                    (
+                        SELECT json(UNNEST(json_transform(j->>'title', '["JSON"]'))) as title, 
+                               j->>'docid' as id 
+                        FROM read_csv_auto('{f}', delim='', maximum_line_size='8000000', columns={{'j': 'JSON'}})
+                    ) AS q1
                 """)
             # headings
             cursor.execute(f"""
                     INSERT INTO {key}
-                        SELECT
-                            'headings' as field,
-                            q1.headings->>'entity_id' AS entity_id,
-                            q1.headings->>'start_pos' AS start_pos,
-                            q1.headings->>'end_pos' AS end_pos,
-                            q1.headings->>'entity' AS entity,
-                            CAST(str_split(q1.id, '_')[3] AS INT) AS segment,
-                            CAST(str_split(q1.id, '_')[4] AS UINT64) AS doc_offset,
-                            q1.id AS id 
-                        FROM 
-                        (
-                            SELECT json(UNNEST(json_transform(j->>'headings', '["JSON"]'))) as headings, 
-                                   j->>'docid' as id 
-                            FROM read_csv_auto('{f}', delim='', maximum_line_size='8000000', columns={{'j': 'JSON'}})
-                        ) AS q1
+                    SELECT
+                        'headings' as field,
+                        q1.headings->>'entity_id' AS entity_id,
+                        q1.headings->>'start_pos' AS start_pos,
+                        q1.headings->>'end_pos' AS end_pos,
+                        q1.headings->>'entity' AS entity,
+                        CAST(str_split(q1.id, '_')[3] AS INT) AS segment,
+                        CAST(str_split(q1.id, '_')[4] AS UINT64) AS doc_offset,
+                        q1.id AS id 
+                    FROM 
+                    (
+                        SELECT json(UNNEST(json_transform(j->>'headings', '["JSON"]'))) as headings, 
+                               j->>'docid' as id 
+                        FROM read_csv_auto('{f}', delim='', maximum_line_size='8000000', columns={{'j': 'JSON'}})
+                    ) AS q1
                 """)
             # body
             cursor.execute(f"""
                     INSERT INTO {key}
-                        SELECT
-                            'body' as field,
-                            q1.body->>'entity_id' AS entity_id,
-                            q1.body->>'start_pos' AS start_pos,
-                            q1.body->>'end_pos' AS end_pos,
-                            q1.body->>'entity' AS entity,
-                            CAST(str_split(q1.id, '_')[3] AS INT) AS segment,
-                            CAST(str_split(q1.id, '_')[4] AS UINT64) AS doc_offset,
-                            q1.id AS id 
-                        FROM 
-                        (
-                            SELECT json(UNNEST(json_transform(j->>'body', '["JSON"]'))) as body, 
-                                   j->>'docid' as id 
-                            FROM read_csv_auto('{f}', delim='', maximum_line_size='8000000', columns={{'j': 'JSON'}})
-                        ) AS q1
+                    SELECT
+                        'body' as field,
+                        q1.body->>'entity_id' AS entity_id,
+                        q1.body->>'start_pos' AS start_pos,
+                        q1.body->>'end_pos' AS end_pos,
+                        q1.body->>'entity' AS entity,
+                        CAST(str_split(q1.id, '_')[3] AS INT) AS segment,
+                        CAST(str_split(q1.id, '_')[4] AS UINT64) AS doc_offset,
+                        q1.id AS id 
+                    FROM 
+                    (
+                        SELECT json(UNNEST(json_transform(j->>'body', '["JSON"]'))) as body, 
+                               j->>'docid' as id 
+                        FROM read_csv_auto('{f}', delim='', maximum_line_size='8000000', columns={{'j': 'JSON'}})
+                    ) AS q1
                 """)
             cursor.commit()
     except Exception as e:
