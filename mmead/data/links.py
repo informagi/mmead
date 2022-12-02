@@ -1,6 +1,7 @@
 from ..util import load_links
 import json
 
+
 def get_links(version, passage_or_doc, verbose=True):
     if version == 'v1' and passage_or_doc == 'passage':
         return V1PassageLinks(verbose)
