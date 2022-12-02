@@ -1,5 +1,5 @@
 from ..util import load_links
-
+import json
 
 def get_links(version, passage_or_doc, verbose=True):
     if version == 'v1' and passage_or_doc == 'passage':
@@ -95,9 +95,10 @@ class V2PassageLinks(Links):
 
     def load_links_from_docid(self, docid):
         _, __, segment, offset = docid.split('_')
-        return self.load_links_from_segment_and_offset(docid, segment, offset)
+        return self.load_links_from_segment_and_offset(segment, offset)
 
-    def load_links_from_segment_and_offset(self, docid, segment, offset):
+    def load_links_from_segment_and_offset(self, segment, offset):
+        docid = f"msmarco_passage_{segment}_{offset}"
         self.cursor.execute(f"""
             SELECT to_json(
                 {{
@@ -134,13 +135,78 @@ class V2DocLinks(Links):
         return self.load_links_from_segment_and_offset(segment, offset)
 
     def load_links_from_segment_and_offset(self, segment, offset):
+        docid = f"msmarco_doc_{segment}_{offset}"
         self.cursor.execute(f"""
-            SELECT field, entity_id, start_pos, end_pos, entity, id 
-            FROM {self.identifier}
-            WHERE segment = '{segment}'
-            AND doc_offset = '{offset}'
+                SELECT to_json(
+                    {{
+                        'docid': '{docid}'
+                    }}
+                )
+                UNION
+                SELECT to_json(
+                    {{
+                        'title': list_concat([], CAST(json_group_array(x) AS JSON[])),
+                    }}
+                )
+                FROM (
+                    SELECT to_json(
+                        {{
+                            'entity_id': entity_id,
+                            'start_pos': start_pos,
+                            'end_pos': end_pos,
+                            'entity': entity 
+                        }}
+                    ) as x
+                    FROM {self.identifier}
+                    WHERE segment = '{segment}'
+                    AND doc_offset = '{offset}'
+                    AND field = 'title'
+                )
+                UNION
+                SELECT to_json(
+                    {{
+                        'header': list_concat([], CAST(json_group_array(x) AS JSON[])),
+                    }}
+                )
+                FROM (
+                    SELECT to_json(
+                        {{
+                            'entity_id': entity_id,
+                            'start_pos': start_pos,
+                            'end_pos': end_pos,
+                            'entity': entity 
+                        }}
+                    ) as x
+                    FROM {self.identifier}
+                    WHERE segment = '{segment}'
+                    AND doc_offset = '{offset}'
+                    AND field = 'header'
+                )
+                UNION
+                SELECT to_json(
+                    {{
+                        'body': list_concat([], CAST(json_group_array(x) AS JSON[])),
+                    }}
+                )
+                FROM (
+                    SELECT to_json(
+                        {{
+                            'entity_id': entity_id,
+                            'start_pos': start_pos,
+                            'end_pos': end_pos,
+                            'entity': entity 
+                        }}
+                    ) as x
+                    FROM {self.identifier}
+                    WHERE segment = '{segment}'
+                    AND doc_offset = '{offset}'
+                    AND field = 'body'
+                )
         """)
-        return self.cursor.fetchone()[0]
+        output = dict()
+        for out in self.cursor.fetchall():
+            output |= json.loads(out[0])
+        return json.dumps(output)
 
     def load_links_from_docids(self, docid):
         raise NotImplementedError()
