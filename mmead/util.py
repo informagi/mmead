@@ -101,7 +101,7 @@ def load_links(key, force=False, verbose=True):
     cursor = _get_cursor()
     if _check_force(key, cursor, verbose, force):
         return cursor
-    path_to_data = download_and_unpack(key, force=force)
+    path_to_data = download_and_unpack(key, force=force, verbose=verbose)
     if key == 'msmarco_v1_doc_links':
         return _load_msmarco_v1_doc_links(key, path_to_data, cursor, verbose)
     elif key == 'msmarco_v1_passage_links':
