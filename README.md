@@ -14,13 +14,13 @@ If you load a class that uses the entity links, the data is automatically downlo
 The following code will load the entity links for the MSMARCO v1 passage collection:
 ```Python3
 >>> from mmead import get_links
->>> links = get_links('v1', 'passage')
+>>> links = get_links('v1', 'passage', verbose=False)
 ```
 After downloading and using the data for the first time, the data will be stored in cache. The first time
 it might take some time, but afterwards you can access the data quite quickly:
 ```python3
 >>> print(links.load_links_from_docid(123))
-[('passage', '7954681', '126', '134', 'Montreal', '123')]
+{"passage":[{"entity_id":"7954681","start_pos":"126","end_pos":"134","entity":"Montreal"}],"pid":"123"}
 ```
 
 ### Embeddings
