@@ -126,7 +126,7 @@ def _load_msmarco_v1_doc_links(key, path_to_data, cursor, verbose):
                 start_pos INT,
                 end_pos INT,
                 entity VARCHAR,
-                id UINT64
+                id VARCHAR
             ); 
         """)
         cursor.execute(f"""
@@ -195,7 +195,7 @@ def _load_msmarco_v1_passage_links(key, path_to_data, cursor, verbose):
                 q1.passage->>'start_pos' AS start_pos,
                 q1.passage->>'end_pos' AS end_pos,
                 q1.passage->>'entity' AS entity,
-                CAST(q1.pid as VARCHAR) AS pid
+                CAST(q1.pid as UINT64) AS pid
             FROM
             (
                 SELECT
