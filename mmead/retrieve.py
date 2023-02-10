@@ -4,6 +4,7 @@ import hashlib
 import os
 import re
 import tarfile
+import shutil
 from urllib.error import HTTPError, URLError
 from urllib.request import urlretrieve
 
@@ -48,16 +49,18 @@ def _compute_md5(file, block_size=2**20):
     return m.hexdigest()
 
 
-def download_and_unpack(name, force=False, verbose=True):
+def download_and_unpack(name, linker='rel', force=False, verbose=True):
     if name not in EMBEDDING_INFO and name not in LINK_INFO and name not in MAPPING_INFO:
         raise ValueError(f'Unrecognized data file: {name}')
     if name in EMBEDDING_INFO:
         info = EMBEDDING_INFO
+        target = info[name]
     elif name in LINK_INFO:
         info = LINK_INFO
+        target = info[name][linker]
     else:
         info = MAPPING_INFO
-    target = info[name]
+        target = info[name]
     subdirectory = info['_folder']
     try:
         to_file = os.path.join(get_cache_home(), subdirectory, target['to_file'])
@@ -72,7 +75,10 @@ def download_and_unpack(name, force=False, verbose=True):
             return to_file
         if verbose:
             print(f'{to_file} already exists, but force=True, removing {to_file} and fetching fresh copy...')
-        os.remove(to_file)
+        try:
+            os.remove(to_file)
+        except IsADirectoryError:
+            shutil.rmtree(to_file)
 
     tmp_folder = f"{target['filename'][:-len(target['extension'])]}.{target['md5']}"
     try:
@@ -190,6 +196,11 @@ def _unpack(to_unpack, target_file, verbose, extension, subdirectory, to_file, v
             os.rmdir(os.path.join(get_cache_home(), subdirectory, version))
         finally:
             os.remove(tmp_file)
+    elif extension == '.tar.gz':
+        if verbose:
+            print("Unpacking data, this can take a while...")
+        with tarfile.open(to_unpack, 'r:gz') as read:
+            _safe_extract(read, os.path.join(get_cache_home(), subdirectory))
     elif extension == '.gz':
         if verbose:
             print("Unpacking data, this can take a while...")
@@ -197,6 +208,8 @@ def _unpack(to_unpack, target_file, verbose, extension, subdirectory, to_file, v
             for line in infile:
                 out.write(line)
     elif extension == '.tar':
+        if verbose:
+            print("Unpacking data, this can take a while...")
         with tarfile.open(to_unpack, 'r') as read:
             _safe_extract(read, os.path.join(get_cache_home(), subdirectory))
     else:

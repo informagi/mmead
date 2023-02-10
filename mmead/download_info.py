@@ -22,40 +22,57 @@ EMBEDDING_INFO = {
 
 LINK_INFO = {
     "msmarco_v1_doc_links": {
-        "description": "Entity Links for MS MARCO v1 Documents",
-        "filename": "msmarco_v1_docs_links_v1.0.json.gz",
-        "extension": ".gz",
-        "url": "https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v1_docs_links_v1.0.json.gz",
-        "md5": "b5c4e57db92047713b4ebef41afd3bef",
-        "version": "wikipedia-20190701",
-        "to_file": "msmarco_v1_doc_links",
+        'rel': {
+            "description": "Entity Links for MS MARCO v1 Documents tagged by REL",
+            "filename": "msmarco_v1_docs_links_v1.0.json.gz",
+            "extension": ".gz",
+            "url": "https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v1_docs_links_v1.0.json.gz",
+            "md5": "b5c4e57db92047713b4ebef41afd3bef",
+            "version": "wikipedia-20190701",
+            "to_file": "msmarco_v1_doc_links_rel",
+        }
     },
     "msmarco_v1_passage_links": {
-        "description": "Entity Links for MS MARCO v1 Passages",
-        "filename": "msmarco_v1_passage_links_v1.0.json.gz",
-        "extension": ".gz",
-        "url": "https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v1_passage_links_v1.0.json.gz",
-        "md5": "05cca3cb7172d3e7dd7f6baf1d5f5fdc",
-        "version": "wikipedia-20190701",
-        "to_file": "msmarco_v1_passage_links",
+        'rel': {
+            "description": "Entity Links for MS MARCO v1 Passages tagged by REL",
+            "filename": "msmarco_v1_passage_links_v1.0.json.gz",
+            "extension": ".gz",
+            "url": "https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v1_passage_links_v1.0.json.gz",
+            "md5": "05cca3cb7172d3e7dd7f6baf1d5f5fdc",
+            "version": "wikipedia-20190701",
+            "to_file": "msmarco_v1_passage_links_rel",
+        },
+        'blink': {
+            "description": "Entity Links for MS MARCO v1 Passages tagged by BLINK",
+            "filename": "blink_mmead.tar.gz",
+            "extension": ".tar.gz",
+            "url": "http://gem.cs.ru.nl/blink_mmead.tar.gz",
+            "md5": "c32f954769a75b02034a2f0ab87a9595",
+            "version": "wikipedia-20190801",
+            "to_file": "blink_mmead",
+         }
     },
     "msmarco_v2_doc_links": {
-        "description": "Entity Links for MS MARCO v2 Documents",
-        "filename": "msmarco_v2_doc_links_v1.0.tar",
-        "extension": ".tar",
-        "url": "https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v2_doc_links_v1.0.tar",
-        "md5": "16aa44d80063dfb3a89aeb774ee3a77f",
-        "version": "wikipedia-20190701",
-        "to_file": "msmarco_v2_doc_links",
+        'rel': {
+            "description": "Entity Links for MS MARCO v2 Documents tagged by REL",
+            "filename": "msmarco_v2_doc_links_v1.0.tar",
+            "extension": ".tar",
+            "url": "https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v2_doc_links_v1.0.tar",
+            "md5": "16aa44d80063dfb3a89aeb774ee3a77f",
+            "version": "wikipedia-20190701",
+            "to_file": "msmarco_v2_doc_links_rel",
+        }
     },
     "msmarco_v2_passage_links": {
-        "description": "Entity Links for MS MARCO v2 Passages",
-        "filename": "msmarco_v2_passage_links_v1.0.tar",
-        "extension": ".tar",
-        "url": "https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v2_passage_links_v1.0.tar",
-        "md5": "40779507b30d358e66fd1e6e2295876d",
-        "version": "wikipedia-20190701",
-        "to_file": "msmarco_v2_passage_links",
+        'rel': {
+            "description": "Entity Links for MS MARCO v2 Passages tagged by REL",
+            "filename": "msmarco_v2_passage_links_v1.0.tar",
+            "extension": ".tar",
+            "url": "https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v2_passage_links_v1.0.tar",
+            "md5": "40779507b30d358e66fd1e6e2295876d",
+            "version": "wikipedia-20190701",
+            "to_file": "msmarco_v2_passage_links_rel",
+        }
     },
     '_folder': 'links',
 }

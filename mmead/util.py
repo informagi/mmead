@@ -95,32 +95,40 @@ def load_mappings(key, force=False, verbose=True):
     return cursor
 
 
-def load_links(key, force=False, verbose=True):
+def load_links(key, force=False, verbose=True, linker='rel'):
     if key not in LINK_INFO:
         raise ValueError(f'{key} is not a valid link identifier')
     cursor = _get_cursor()
-    if _check_force(key, cursor, verbose, force):
+    if _check_force(f'{key}_{linker}', cursor, verbose, force):
         return cursor
-    path_to_data = download_and_unpack(key, force=force, verbose=verbose)
-    if key == 'msmarco_v1_doc_links':
-        return _load_msmarco_v1_doc_links(key, path_to_data, cursor, verbose)
-    elif key == 'msmarco_v1_passage_links':
-        return _load_msmarco_v1_passage_links(key, path_to_data, cursor, verbose)
-    elif key == 'msmarco_v2_doc_links':
-        return _load_msmarco_v2_doc_links(key, path_to_data, cursor, verbose)
-    elif key == 'msmarco_v2_passage_links':
-        return _load_msmarco_v2_passage_links(key, path_to_data, cursor, verbose)
+    path_to_data = download_and_unpack(key, linker=linker, force=force, verbose=verbose)
+    if linker == 'rel':
+        if key == 'msmarco_v1_doc_links':
+            return _load_msmarco_v1_doc_links_rel(key, path_to_data, cursor, verbose)
+        elif key == 'msmarco_v1_passage_links':
+            return _load_msmarco_v1_passage_links_rel(key, path_to_data, cursor, verbose)
+        elif key == 'msmarco_v2_doc_links':
+            return _load_msmarco_v2_doc_links_rel(key, path_to_data, cursor, verbose)
+        elif key == 'msmarco_v2_passage_links':
+            return _load_msmarco_v2_passage_links_rel(key, path_to_data, cursor, verbose)
+        else:
+            raise ValueError(f"This key: {key} is not supported for the rel linker")
+    if linker == 'blink':
+        if key == 'msmarco_v1_passage_links':
+            return _load_msmarco_v1_passage_links_blink(key, path_to_data, cursor, verbose)
+        else:
+            raise ValueError(f"This key: {key} is not supported for the blink linker")
     else:
         raise ValueError("This key is not recognized")
 
 
-def _load_msmarco_v1_doc_links(key, path_to_data, cursor, verbose):
+def _load_msmarco_v1_doc_links_rel(key, path_to_data, cursor, verbose, linker='rel'):
     if verbose:
         print("Loading the MS MARCO v1 document entity links, this might take a while...")
     cursor.begin()
     try:
         cursor.execute(f"""
-            CREATE OR REPLACE TABLE {key} (
+            CREATE OR REPLACE TABLE {key}_rel (
                 field VARCHAR,
                 entity_id INT,
                 start_pos INT,
@@ -130,7 +138,7 @@ def _load_msmarco_v1_doc_links(key, path_to_data, cursor, verbose):
             ); 
         """)
         cursor.execute(f"""
-            INSERT INTO {key}
+            INSERT INTO {key}_rel
             SELECT 
                 'body' AS field,
                 q1.body->>'entity_id' AS entity_id,
@@ -146,7 +154,7 @@ def _load_msmarco_v1_doc_links(key, path_to_data, cursor, verbose):
             ) as q1
         """)
         cursor.execute(f"""
-            INSERT INTO {key}
+            INSERT INTO {key}_rel
             SELECT
                 'title' as field,
                 q1.title->>'entity_id' AS entity_id,
@@ -164,21 +172,21 @@ def _load_msmarco_v1_doc_links(key, path_to_data, cursor, verbose):
         cursor.commit()
     except Exception as e:
         cursor.rollback()
-        cursor.execute(f"DROP TABLE IF EXISTS {key}")
+        cursor.execute(f"DROP TABLE IF EXISTS {key}_rel")
         raise e
     _remove_raw_data(path_to_data, verbose)
     if verbose:
-        print(f"Table {key} is available...")
+        print(f"Table {key}_rel is available...")
     return cursor
 
 
-def _load_msmarco_v1_passage_links(key, path_to_data, cursor, verbose):
+def _load_msmarco_v1_passage_links_rel(key, path_to_data, cursor, verbose):
     if verbose:
         print("Loading the MS MARCO v1 passage entity links, this might take a while...")
     cursor.begin()
     try:
         cursor.execute(f"""
-            CREATE OR REPLACE TABLE {key} (
+            CREATE OR REPLACE TABLE {key}_rel (
                 field VARCHAR,
                 entity_id INT,
                 start_pos INT,
@@ -188,7 +196,7 @@ def _load_msmarco_v1_passage_links(key, path_to_data, cursor, verbose):
             ); 
         """)
         cursor.execute(f"""
-            INSERT INTO {key}
+            INSERT INTO {key}_rel
             SELECT
                 'passage' AS field,
                 q1.passage->>'entity_id' AS entity_id,
@@ -207,20 +215,69 @@ def _load_msmarco_v1_passage_links(key, path_to_data, cursor, verbose):
         cursor.commit()
     except Exception as e:
         cursor.rollback()
-        cursor.execute(f"DROP TABLE IF EXISTS {key}")
+        cursor.execute(f"DROP TABLE IF EXISTS {key}_rel")
         raise e
     _remove_raw_data(path_to_data, verbose)
     if verbose:
-        print(f"Table {key} is available...")
+        print(f"Table {key}_rel is available...")
     return cursor
 
 
-def _load_msmarco_v2_doc_links(key, path_to_data, cursor, verbose):
+def _load_msmarco_v1_passage_links_blink(key, path_to_data, cursor, verbose):
+    if verbose:
+        print("Loading the MS MARCO v1 passage entity links, this might take a while...")
+    cursor.begin()
+    try:
+        cursor.execute(f"""
+            CREATE OR REPLACE TABLE {key}_blink (
+                field VARCHAR,
+                entity_id INT,
+                start_pos INT,
+                end_pos INT,
+                entity VARCHAR,
+                pid UINT64
+            ); 
+        """)
+        for file in tqdm(sorted(os.listdir(path_to_data)), disable=(not verbose)):
+            cursor.execute(f"""
+                INSERT INTO {key}_blink
+                SELECT
+                    'passage' AS field,
+                    q1.passage->>'entity_id' AS entity_id,
+                    q1.passage->>'start_pos' AS start_pos,
+                    q1.passage->>'end_pos' AS end_pos,
+                    q1.passage->>'entity' AS entity,
+                    CAST(q1.pid as UINT64) AS pid
+                FROM
+                (
+                    SELECT
+                        json(UNNEST(json_transform(j->>'passage', '["JSON"]'))) as passage , 
+                        j->>'pid' as pid
+                    FROM read_csv_auto(
+                        '{os.path.join(path_to_data, file)}',
+                        delim='',
+                        maximum_line_size='8000000', 
+                        columns={{'j': 'JSON'}}
+                    )
+                ) AS q1
+            """)
+        cursor.commit()
+    except Exception as e:
+        cursor.rollback()
+        cursor.execute(f"DROP TABLE IF EXISTS {key}_blink")
+        raise e
+    _remove_raw_data(path_to_data, verbose)
+    if verbose:
+        print(f"Table {key}_blink is available...")
+    return cursor
+
+
+def _load_msmarco_v2_doc_links_rel(key, path_to_data, cursor, verbose):
     if verbose:
         print("Loading the MS MARCO v2 document entity links, this might take a while...")
     try:
         cursor.execute(f"""
-            CREATE OR REPLACE TABLE {key} (
+            CREATE OR REPLACE TABLE {key}_rel (
                 field VARCHAR,
                 entity_id INT,
                 start_pos INT,
@@ -236,7 +293,7 @@ def _load_msmarco_v2_doc_links(key, path_to_data, cursor, verbose):
             cursor.begin()
             # title
             cursor.execute(f"""
-                    INSERT INTO {key}
+                    INSERT INTO {key}_rel
                     SELECT
                         'title' as field,
                         q1.title->>'entity_id' AS entity_id,
@@ -255,7 +312,7 @@ def _load_msmarco_v2_doc_links(key, path_to_data, cursor, verbose):
                 """)
             # headings
             cursor.execute(f"""
-                    INSERT INTO {key}
+                    INSERT INTO {key}_rel
                     SELECT
                         'headings' as field,
                         q1.headings->>'entity_id' AS entity_id,
@@ -274,7 +331,7 @@ def _load_msmarco_v2_doc_links(key, path_to_data, cursor, verbose):
                 """)
             # body
             cursor.execute(f"""
-                    INSERT INTO {key}
+                    INSERT INTO {key}_rel
                     SELECT
                         'body' as field,
                         q1.body->>'entity_id' AS entity_id,
@@ -294,21 +351,21 @@ def _load_msmarco_v2_doc_links(key, path_to_data, cursor, verbose):
             cursor.commit()
     except Exception as e:
         cursor.rollback()
-        cursor.execute(f"DROP TABLE IF EXISTS {key}")
+        cursor.execute(f"DROP TABLE IF EXISTS {key}_rel")
         raise e
     _remove_raw_data(path_to_data, verbose)
     if verbose:
-        print(f"Table {key} is available...")
+        print(f"Table {key}_rel is available...")
     return cursor
 
 
-def _load_msmarco_v2_passage_links(key, path_to_data, cursor, verbose):
+def _load_msmarco_v2_passage_links_rel(key, path_to_data, cursor, verbose):
     if verbose:
         print("Loading the MS MARCO v2 passage entity links, this might take a while...")
     cursor.begin()
     try:
         cursor.execute(f"""
-            CREATE OR REPLACE TABLE {key} 
+            CREATE OR REPLACE TABLE {key}_rel
             (
                 field VARCHAR,
                 entity_id INT,
@@ -323,7 +380,7 @@ def _load_msmarco_v2_passage_links(key, path_to_data, cursor, verbose):
         for file in tqdm(os.listdir(path_to_data), disable=(not verbose)):
             f = os.path.join(path_to_data, file)
             cursor.execute(f"""
-                    INSERT INTO {key}
+                    INSERT INTO {key}_rel
                     SELECT 
                         'passage' AS field,
                         q1.passage->>'entity_id' AS entity_id,
@@ -343,9 +400,9 @@ def _load_msmarco_v2_passage_links(key, path_to_data, cursor, verbose):
         cursor.commit()
     except Exception as e:
         cursor.rollback()
-        cursor.execute(f"DROP TABLE IF EXISTS {key}")
+        cursor.execute(f"DROP TABLE IF EXISTS {key}_rel")
         raise e
     _remove_raw_data(path_to_data, verbose)
     if verbose:
-        print(f"Table {key} is available..., with JSON column j...")
+        print(f"Table {key}_rel is available..., with JSON column j...")
     return cursor
