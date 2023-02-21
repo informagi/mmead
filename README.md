@@ -62,14 +62,30 @@ There is also a mapping from entity text to its id available, or the other way a
 The following data is available through MMEAD: 
 
 ### Data using [REL](https://github.com/informagi/REL):
+
+#### Passage Links
+- [MS MARCO v1 doc Entity Links](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v1_docs_links_v1.0.json.gz)
+- [MS MARCO v1 passage Entity Links](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v1_passage_links_v1.0.json.gz)
+- [MS MARCO v2 doc Entity Links](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v2_doc_links_v1.0.tar)
+- [MS MARCO v2 passage Entity Links](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v2_passage_links_v1.0.tar)
+
+#### Query Links:
+- [MS MARCO v1 Entity Links](http://gem.cs.ru.nl/topics.msmarco-passage.dev-subset.linked.json.gz)
+- [MS MARCO v2 Entity Links](http://gem.cs.ru.nl/topics.msmarco-v2-passage.dev.linked.json.gz)
+
+#### Mappings: 
 - [Mapping from Entity URL to Entity ID](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/entity_id_map.json.gz)
 - [Mapping from Entity ID to Entity URL](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/id_entity_map.json.gz)
+
+#### Embeddings:
 - [300D Wikipedia2Vec embeddings](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/enwiki-20190701-wiki2vec-dim300.tar.bz2)
 - [500D Wikipedia2Vec embeddings](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/enwiki-20190701-wiki2vec-dim500.tar.bz2)
-- [MSMARCO v1 doc Entity Links](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v1_docs_links_v1.0.json.gz)
-- [MSMARCO v1 passage Entity Links](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v1_passage_links_v1.0.json.gz)
-- [MSMARCO v2 doc Entity Links](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v2_doc_links_v1.0.tar)
-- [MSMARCO v2 passage Entity Links](https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v2_passage_links_v1.0.tar)
+
+
+### Data using [BLINK](https://github.com/facebookresearch/BLINK):
+
+#### Passage Links
+- [MS MARCO v1 passage Entity Links](http://gem.cs.ru.nl/blink_mmead.tar.gz)
 
 MMEAD provides code that automatically downloads the data and provides it
 through a database, so you do not have to download it manually. 
