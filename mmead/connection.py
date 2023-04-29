@@ -27,9 +27,11 @@ class DBConnection(object):
             self.mem = mem
         else:
             # If mem is not provided we set the max mem to half of RAM
-            mem_bytes = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
-            mem_gib = mem_bytes/(1024.**3)
-            self.mem = mem_gib//2
+            self.mem = 8
+            # Below does not work for os, so we now just set it 8 GB
+            # mem_bytes = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
+            # mem_gib = mem_bytes/(1024.**3)
+            # self.mem = mem_gib//2
         self.connection = duckdb.connect(database)
         self.connection.install_extension("json")
         self.connection.load_extension("json")
