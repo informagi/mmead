@@ -17,7 +17,13 @@ def get_cache_home():
     custom_dir = os.environ.get("MMEAD_CACHE")
     if custom_dir is not None and custom_dir != '':
         return custom_dir
-    return os.path.expanduser(os.path.join(f'~{os.path.sep}.cache', "mmead"))
+
+    cache_home = os.path.expanduser(os.path.join(f'~{os.path.sep}.cache', "mmead"))
+    if not os.path.exists(os.path.expanduser(os.path.join(f'~{os.path.sep}.cache'))):
+        os.mkdir(os.path.expanduser(f'~{os.path.sep}.cache'))
+    if not os.path.exists(os.path.expanduser(os.path.join(f'~{os.path.sep}.cache', "mmead"))):
+        os.mkdir(os.path.expanduser(os.path.join(f'~{os.path.sep}.cache', "mmead")))
+    return cache_home
 
 
 # https://gist.github.com/leimao/37ff6e990b3226c2c9670a2cd1e4a6f5
