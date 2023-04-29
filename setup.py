@@ -8,5 +8,6 @@ setuptools.setup(
     description="MS MARCO entity annotations and disambiguations",
     url="https://github.com/informagi/mmead",
     packages=setuptools.find_packages(),
+    install_requires=['tqdm', 'numpy', 'duckdb'],
     python_requires=">=3.6"
 )
