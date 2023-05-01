@@ -60,7 +60,7 @@ LINK_INFO = {
             "url": "https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v2_doc_links_v1.0.tar",
             "md5": "16aa44d80063dfb3a89aeb774ee3a77f",
             "version": "wikipedia-20190701",
-            "to_file": "msmarco_v2_doc_links_rel",
+            "to_file": "msmarco_v2_doc_links",
         }
     },
     "msmarco_v2_passage_links": {
@@ -71,7 +71,7 @@ LINK_INFO = {
             "url": "https://rgw.cs.uwaterloo.ca/JIMMYLIN-bucket0/mmead/msmarco_v2_passage_links_v1.0.tar",
             "md5": "40779507b30d358e66fd1e6e2295876d",
             "version": "wikipedia-20190701",
-            "to_file": "msmarco_v2_passage_links_rel",
+            "to_file": "msmarco_v2_passage_links",
         }
     },
     '_folder': 'links',
