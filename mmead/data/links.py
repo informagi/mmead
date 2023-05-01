@@ -22,6 +22,7 @@ class Links:
     def __init__(self, key, verbose=True, linker='rel'):
         self.identifier = key
         self.cursor = load_links(self.identifier, verbose=verbose, linker=linker)
+        self.table = self.identifier + '_' + linker
 
     def load_links_from_docid(self, docid):
         raise NotImplementedError()
@@ -51,7 +52,7 @@ class V1PassageLinksREL(Links):
                         'entity': entity,
                     }}
                 ) AS x
-                FROM {self.identifier}
+                FROM {self.table}
                 WHERE pid = {docid}
             )
         """)
@@ -82,7 +83,7 @@ class V1PassageLinksBlink(Links):
                         'entity': entity,
                     }}
                 ) AS x
-                FROM {self.identifier}
+                FROM {self.table}
                 WHERE pid = {docid}
             )
         """)
@@ -113,7 +114,7 @@ class V1DocLinks(Links):
                         'entity': entity 
                     }}
                 ) as x
-                FROM {self.identifier}
+                FROM {self.table}
                 WHERE id = '{docid}'
             )
         """)
@@ -149,7 +150,7 @@ class V2PassageLinks(Links):
                         'entity': entity 
                     }}
                 ) as x
-                FROM {self.identifier}
+                FROM {self.table}
                 WHERE segment = '{segment}'
                 AND passage_offset = '{offset}'
             )
@@ -191,7 +192,7 @@ class V2DocLinks(Links):
                             'entity': entity 
                         }}
                     ) as x
-                    FROM {self.identifier}
+                    FROM {self.table}
                     WHERE segment = '{segment}'
                     AND doc_offset = '{offset}'
                     AND field = 'title'
@@ -211,7 +212,7 @@ class V2DocLinks(Links):
                             'entity': entity 
                         }}
                     ) as x
-                    FROM {self.identifier}
+                    FROM {self.table}
                     WHERE segment = '{segment}'
                     AND doc_offset = '{offset}'
                     AND field = 'header'
@@ -231,7 +232,7 @@ class V2DocLinks(Links):
                             'entity': entity 
                         }}
                     ) as x
-                    FROM {self.identifier}
+                    FROM {self.table}
                     WHERE segment = '{segment}'
                     AND doc_offset = '{offset}'
                     AND field = 'body'
