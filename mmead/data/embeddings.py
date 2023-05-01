@@ -22,7 +22,7 @@ class Embeddings:
     def load_word_embedding(self, word):
         self.cursor.execute(f"""
             SELECT embedding 
-            FROM wiki2vec_300d
+            FROM {self.identifier} 
             WHERE key = lower('{word}')
             LIMIT 1
         """)
@@ -34,7 +34,7 @@ class Embeddings:
     def load_entity_embedding(self, entity):
         self.cursor.execute(f"""
             SELECT embedding 
-            FROM wiki2vec_300d
+            FROM {self.identifier}
             WHERE key = 'ENTITY/{entity.replace(' ', '_')}'
             LIMIT 1
         """)
