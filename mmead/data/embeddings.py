@@ -41,4 +41,4 @@ class Embeddings:
         if (res := self.fetch()) is not None:
             return np.array(res[0])
         else:
-            raise ValueError(f"No result available for enitity {entity} ...")
+            raise ValueError(f"No result available for entity {entity} ...")
