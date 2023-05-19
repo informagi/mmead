@@ -8,5 +8,5 @@ entity links can be shared for easier usage of entity links. Entity links produc
 
 ## Documentation
 
-+ First, see the [README](https://github.com/informagi/mmead/README.md) in the main repository
-+ [DuckDB](DuckDB): Detailed instructions on how to work with [DuckDB](https://duckdb.org/).
++ First, see the [README](https://github.com/informagi/mmead/blob/main/README.md) in the main repository
++ [DuckDB in MMEAD](DuckDB): Detailed instructions on how to work with [DuckDB](https://duckdb.org/) for MMEAD.
