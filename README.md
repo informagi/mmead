@@ -6,6 +6,8 @@ for the [MSMARCO](https://microsoft.github.io/msmarco/) dataset. MMEAD proposes 
 entity links can be shared for easier usage of entity links. Entity links produced by the
 [Radboud Entity Linker (REL)](https://github.com/informargi/rel) are provided. Code to easily work with this data is available.
 
+See also the [MMEAD documentation](http://informagus.nl/mmead/).
+
 ## How to use
 MMEAD provides an API to easily use the data we provide.
 
